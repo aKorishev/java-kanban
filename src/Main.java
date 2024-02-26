@@ -1,78 +1,134 @@
-import TaskManager.*;
+import taskManager.*;
 
 public class Main {
 
-    public static void main(String[] args) {
-        TaskManager taskManager = new TaskManager();
+    public static void main(String[] args) throws Exception {
+        try {
+            TaskManager taskManager = new TaskManager();
 
-        taskManager.putTask(new Task("Придумать кейсы", "Придумать модель поведения пользователя", TaskManager.incrementLastNumber()));
-        taskManager.putTask(new Task("Реализовать действия пользователя", "Действия пользователя обозвать методами и реализовать в них функциональность", TaskManager.incrementLastNumber()));
+            debugTasks(taskManager);
+            debugTasksOfDone(taskManager);
 
-        int taskId = TaskManager.incrementLastNumber();
-        taskManager.putTask(new Task("Сдать работу", "Отправить архив с кодом ревьюверу", taskId));
+            int epicCreateTestingId = debugEpicsUsedTests(taskManager);
 
-        taskManager.update(new Task("Сдать работу", "Закомитить код в git", taskId));
+            int epicDebugId = replaceTestOnDebug(taskManager, epicCreateTestingId);
 
-        System.out.println("Список задач типа TASK:");
-        for(Task task: taskManager.getAllTasks(TaskType.TASK)){
+            int epicImplementionId = updateImplemention(taskManager);
+        }
+        catch (Exception ex){
+            throw ex;
+        }
+    }
+
+    private static void debugTasks(TaskManager taskManager){
+        taskManager.createTask("Придумать кейсы", "Придумать модель поведения пользователя");
+        taskManager.createTask("Реализовать действия пользователя", "Действия пользователя обозвать методами и реализовать в них функциональность");
+
+        int taskId = taskManager.createTask("Сдать работу", "Отправить архив с кодом ревьюверу");
+
+        System.out.println("1. Список задач типа TASK:");
+        for (Task task : taskManager.getAllTasks(TaskType.TASK)) {
             System.out.println(task);
         }
         System.out.println("\n");
 
-        Epic epicPull = new Epic("Стянуть", "Стянуть проект из гита", TaskManager.incrementLastNumber());
-        taskManager.putEpic(epicPull);
+        Task taskEndedOfWork = taskManager.getTask(taskId).updateDescription("Закомитить код в git");
 
-        Epic epicCreateClasses = new Epic("Классы", "Создать структуру классов", TaskManager.incrementLastNumber());
-        taskManager.putEpic(epicCreateClasses);
+        taskManager.updateTask(taskEndedOfWork);
 
-        Epic epicCreateImplements = new Epic("Реализация", "Реализация методов", TaskManager.incrementLastNumber());
-        taskManager.putEpic(epicCreateClasses);
+        System.out.println("2. Список задач типа TASK:");
+        for (Task task : taskManager.getAllTasks(TaskType.TASK)) {
+            System.out.println(task);
+        }
+        System.out.println("\n");
+    }
 
-        Epic epicCreateTesting = new Epic("Тестирование", "Проверка кода через тестирование", TaskManager.incrementLastNumber());
-        Epic epicDebug = new Epic("Дебаг", "Дабаггинг кода методовм Main", TaskManager.incrementLastNumber());
+    private static void debugTasksOfDone(TaskManager taskManager){
+        for(Task task : taskManager.getTasks())
+            task.doInDone();
 
-        Epic epicPublish = new Epic("Сдача", "Сдача задания", TaskManager.incrementLastNumber());
+        System.out.println("3. Список задач типа TASK:");
+        for (Task task : taskManager.getAllTasks(TaskType.TASK)) {
+            System.out.println(task);
+        }
+        System.out.println("\n");
+    }
 
-        taskManager.putSubTask(epicPull.getTaskId(), new SubTask("Авторизация","Авторизоваться на гите", TaskManager.incrementLastNumber()));
-        taskManager.putSubTask(epicPull.getTaskId(), new SubTask("Клонирование","Клонирование проекта", TaskManager.incrementLastNumber()));
+    private static int debugEpicsUsedTests(TaskManager taskManager) throws Exception {
+        int epicPullId = taskManager.createEpic("Стянуть", "Стянуть проект из гита");
+        taskManager.createSubTask("Авторизация", "Авторизоваться на гите", epicPullId);
+        taskManager.createSubTask("Клонирование", "Клонирование проекта", epicPullId);
 
-        taskManager.putSubTask(epicCreateClasses.getTaskId(), new SubTask("Классы","Создание струтктуры классов", TaskManager.incrementLastNumber()));
+        int epicCreateClassesId = taskManager.createEpic("Классы", "Создать структуру классов");
+        taskManager.createSubTask("Классы", "Создание струтктуры классов", epicCreateClassesId);
 
-        taskManager.putSubTask(epicCreateImplements.getTaskId(), new SubTask("Класс Task","Реализация классов задач и методов", TaskManager.incrementLastNumber()));
+        int epicCreateImplementsId = taskManager.createEpic("Реализация", "Реализация методов");
+        taskManager.createSubTask("Класс Task", "Реализация классов задач и методов", epicCreateImplementsId);
+        taskManager.createSubTask("Класс TaskManager", "Реализация методов менеджера", epicCreateImplementsId);
 
-        taskManager.putSubTask(epicCreateImplements.getTaskId(), new SubTask("Класс TaskManager","Реализация методов менеджера", TaskManager.incrementLastNumber()));
+        int epicCreateTestingId = taskManager.createEpic("Тестирование", "Проверка кода через тестирование");
+        taskManager.createSubTask("Тест классов", "Отладка методов через тестирование функциональности класса Task", epicCreateTestingId);
+        taskManager.createSubTask("Тест менеджера", "Отладка методов через тестирование йункциональности класса TaskManager", epicCreateTestingId);
 
-        SubTask subTaskOfTestTasks = new SubTask("Тест классов", "Отладка методов через тестирование функциональности класса Task", TaskManager.incrementLastNumber());
-        SubTask subTaskOfTestTaskManager = new SubTask("Тест менеджера", "Отладка методов через тестирование йункциональности класса TaskManager", TaskManager.incrementLastNumber());
+        taskManager.createEpic("Сдача", "Сдача задания");
 
-        taskManager.putEpic(epicCreateTesting);
-        taskManager.putSubTask(epicCreateTesting.getTaskId(), subTaskOfTestTasks);
-        taskManager.putSubTask(epicCreateTesting.getTaskId(), subTaskOfTestTaskManager);
-
-        taskManager.putEpic(epicPublish);
-
+        System.out.println("4. Список задач типа Epic:");
         System.out.println("Эпики:");
-        for(Epic epic : taskManager.getEpics()){
+        for (Epic epic : taskManager.getEpics()) {
             System.out.println(epic);
 
-            for(SubTask subTask: epic.subTasks())
+            for (SubTask subTask : epic.getSubTasks())
                 System.out.println("   " + subTask);
         }
         System.out.println("Кол-во эпиков - " + taskManager.getEpics().size() + ", кол-во подзадач - " + taskManager.getSubTasks().size());
         System.out.println("\n");
 
-        taskManager.removeTask(epicCreateTesting.getTaskId());
-        taskManager.putEpic(epicDebug);
+        return epicCreateTestingId;
+    }
 
-        System.out.println("Эпики (дебаг):");
-        for(Epic epic : taskManager.getEpics()){
+    private static int replaceTestOnDebug(TaskManager taskManager, int epicCreateTestingId) throws Exception {
+        taskManager.removeEpic(epicCreateTestingId);
+
+        int epicDebugId = taskManager.createEpic("Дебаг", "Дабаггинг кода методовм Main");
+        taskManager.createSubTask("Реализация действий пользователя", "Реализация действий пользователя в Main", epicDebugId);
+
+        System.out.println("5. Список задач типа Epic:");
+        System.out.println("Эпики:");
+        for (Epic epic : taskManager.getEpics()) {
             System.out.println(epic);
 
-            for(SubTask subTask: epic.subTasks())
+            for (SubTask subTask : epic.getSubTasks())
                 System.out.println("   " + subTask);
         }
         System.out.println("Кол-во эпиков - " + taskManager.getEpics().size() + ", кол-во подзадач - " + taskManager.getSubTasks().size());
+
+        return epicDebugId;
     }
 
+    private static int updateImplemention(TaskManager taskManager) throws Exception {
+        int implementId = 0;
 
+        for (Epic epic: taskManager.getEpics())
+            if (epic.getName().equals("Реализация")) {
+                implementId = epic.getTaskId();
+                break;
+            }
+        if (implementId == 0) return 0;
+
+        Epic implementEpic = taskManager.getEpic(implementId).updateDescription("Исправление после ревью");
+        taskManager.updateEpic(implementEpic);
+        taskManager.createSubTask("Метод update", "Реализация обновлений задач", implementEpic);
+
+        System.out.println("6. Список задач типа Epic:");
+        System.out.println("Эпики:");
+        for (Epic epic : taskManager.getEpics()) {
+            System.out.println(epic);
+
+            for (SubTask subTask : epic.getSubTasks())
+                System.out.println("   " + subTask);
+        }
+        System.out.println("Кол-во эпиков - " + taskManager.getEpics().size() + ", кол-во подзадач - " + taskManager.getSubTasks().size());
+
+        return implementId;
+    }
 }
