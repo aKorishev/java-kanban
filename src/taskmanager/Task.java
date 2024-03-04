@@ -1,26 +1,25 @@
-package taskManager;
+package taskmanager;
 
 public class Task {
-    private final String name;
-    private final String description;
-    //Это поле упрощает работу с HashMap для TaskManager для Epic и SubTask
-    private final int taskId;
-    private TaskStatus taskStatus = TaskStatus.NEW;
-
-    public Task(String name, String description, int taskId){
+    private String name;
+    private String description;
+    private TaskStatus taskStatus;
+    Task(String name, String description){
+        this(name, description, TaskStatus.NEW);
+    }
+    Task(String name, String description, TaskStatus taskStatus){
         this.name = name;
         this.description = description;
-        this.taskId = taskId;
+        this.taskStatus = taskStatus;
     }
     public String getName() {
         return name;
     }
+    public void setName(String name) { this.name = name; }
     public String getDescription() {
         return description;
     }
-    public int getTaskId() {
-        return taskId;
-    }
+    public void setDescription(String description) { this.description = description; }
     public TaskStatus getTaskStatus() {
         return taskStatus;
     }
@@ -51,19 +50,8 @@ public class Task {
     }
     @Override
     public String toString(){
-        return "taskId = " + taskId + ", name = '" + name + ", desc = " + description + ", taskType = " + getTaskType().name() + ", status = " + taskStatus.name();
+        return "name = '" + name + ", desc = " + description + ", taskType = " + getTaskType().name() + ", status = " + taskStatus.name();
     }
-
-    public Task updateName(String name){
-        return new Task(name, description, taskId);
-    }
-    public Task updateDescription(String description){
-        return new Task(name, description, taskId);
-    }
-    public Task update(String name, String description){
-        return new Task(name, description, taskId);
-    }
-
     protected TaskType getTaskType(){
         return TaskType.TASK;
     }
