@@ -1,13 +1,19 @@
-package taskmanager;
+package tasks;
+
+import enums.TaskStatus;
+import enums.TaskType;
 
 public class Task {
     private String name;
     private String description;
     private TaskStatus taskStatus;
-    Task(String name, String description){
-        this(name, description, TaskStatus.NEW);
+    private String taskId;
+    public Task(String name, String description){
+        this.name = name;
+        this.description = description;
+        this.taskStatus = TaskStatus.NEW;
     }
-    Task(String name, String description, TaskStatus taskStatus){
+    public Task(String name, String description, TaskStatus taskStatus){
         this.name = name;
         this.description = description;
         this.taskStatus = taskStatus;
@@ -16,10 +22,13 @@ public class Task {
         return name;
     }
     public void setName(String name) { this.name = name; }
+
+    public void setDescription(String description) { this.description = description; }
     public String getDescription() {
         return description;
     }
-    public void setDescription(String description) { this.description = description; }
+
+    public String getTaskId() {return taskId; }
     public TaskStatus getTaskStatus() {
         return taskStatus;
     }
@@ -42,15 +51,15 @@ public class Task {
 
         Task task = (Task)other;
 
-        return name.equals(task.name) && description.equals(task.description);
+        return taskId.equals(task.taskId) && getTaskType() == task.getTaskType();
     }
     @Override
     public int hashCode(){
-        return name.hashCode() + description.hashCode();
+        return taskId.hashCode() + name.hashCode() + description.hashCode() + getTaskType().hashCode();
     }
     @Override
     public String toString(){
-        return "name = '" + name + ", desc = " + description + ", taskType = " + getTaskType().name() + ", status = " + taskStatus.name();
+        return "taskId = '" + taskId + "', name = '" + name + ", desc = " + description + ", taskType = " + getTaskType().name() + ", status = " + taskStatus.name();
     }
     protected TaskType getTaskType(){
         return TaskType.TASK;
