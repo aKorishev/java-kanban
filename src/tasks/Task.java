@@ -7,7 +7,7 @@ public class Task {
     private String name;
     private String description;
     private TaskStatus taskStatus;
-    private String taskId;
+    private Integer taskId;
     public Task(String name, String description){
         this.name = name;
         this.description = description;
@@ -28,7 +28,7 @@ public class Task {
         return description;
     }
 
-    public String getTaskId() {return taskId; }
+    public Integer getTaskId() {return taskId; }
     public TaskStatus getTaskStatus() {
         return taskStatus;
     }

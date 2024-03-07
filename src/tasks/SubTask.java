@@ -3,22 +3,21 @@ package tasks;
 import enums.TaskStatus;
 import enums.TaskType;
 
-public class SubTask extends Task{
-    private String epicId;
+import java.util.Optional;
 
-    public SubTask(String name, String description, String epicId) {
-        this(name, description, epicId, TaskStatus.NEW);
-    }
-    public SubTask(String name, String description, String epicId, TaskStatus taskStatus){
-        super(name, description, taskStatus);
+public class SubTask extends Task{
+    private int epicId;
+
+    public SubTask(String name, String description, Integer epicId) {
+        super(name, description, TaskStatus.NEW);
 
         this.epicId = epicId;
     }
 
-    public String getEpicId() {
+    public int getEpicId() {
         return epicId;
     }
-    public void setEpicId(String epicId) { this.epicId = epicId; }
+    public void setEpicId(Integer epicId) { this.epicId = epicId; }
     @Override
     protected TaskType getTaskType(){
         return TaskType.SUBTASK;

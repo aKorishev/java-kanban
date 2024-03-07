@@ -3,25 +3,21 @@ package tasks;
 
 import enums.TaskStatus;
 import enums.TaskType;
-import tools.ReadOnlyCollection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Epic extends Task {
-    private final HashMap<String, SubTask> subTasks = new HashMap<>();
+    private final HashMap<Integer, SubTask> subTasks = new HashMap<>();
     public Epic(String name, String description) {
-        this(name, description, TaskStatus.NEW);
+        super(name, description, TaskStatus.NEW);
     }
-    public Epic(String name, String description, TaskStatus taskStatus){
-        super(name, description, taskStatus);
-    }
-    public ReadOnlyCollection<SubTask> getSubTasks(){
-        return new ReadOnlyCollection<>(subTasks.values());
+    public ArrayList<SubTask> getSubTasks(){
+        return new ArrayList<>(subTasks.values());
     }
 
     public void putSubTask(SubTask task){
-        String taskId = task.getTaskId();
+        int taskId = task.getTaskId();
 
         if (subTasks.containsKey(taskId))
             return;
@@ -33,7 +29,7 @@ public class Epic extends Task {
                 doInProgress();
         }
     }
-    public void removeSubTask(String taskId){
+    public void removeSubTask(int taskId){
         SubTask subTask = subTasks.remove(taskId);
 
         if (getTaskStatus() == TaskStatus.IN_PROGRESS && subTask.getTaskStatus() != TaskStatus.DONE){
