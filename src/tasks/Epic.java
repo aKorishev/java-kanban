@@ -46,6 +46,8 @@ public class Epic extends Task {
         if (getTaskStatus() == TaskStatus.IN_PROGRESS)
             doInDone();
     }
+
+    public boolean containsSubTaskId(int subTaskId) { return subTasks.containsKey(subTaskId); }
     @Override
     protected TaskType getTaskType(){
         return TaskType.EPIC;
