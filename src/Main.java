@@ -53,7 +53,7 @@ public class Main {
     }
 
     private static void printAllTasks(TaskManager taskManager, int number) {
-        System.out.println("Вывод резульата №" + number);
+        System.out.println("\nВывод резульата №" + number);
 
         System.out.println("Tasks:");
         for(Task task : taskManager.getTasks())

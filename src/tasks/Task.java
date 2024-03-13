@@ -7,7 +7,7 @@ public class Task {
     private String name;
     private String description;
     private TaskStatus taskStatus;
-    private Integer taskId;
+    private int taskId;
     public Task(String name, String description){
         this.name = name;
         this.description = description;
@@ -28,9 +28,12 @@ public class Task {
         return description;
     }
 
-    public Integer getTaskId() {return taskId; }
+    public int getTaskId() {return taskId; }
 
-    public void setTaskId(Integer taskId) { this.taskId = taskId; }
+    public void setTaskId(Integer taskId) {
+        if (this.taskId == 0)
+            this.taskId = taskId;
+    }
 
     public TaskStatus getTaskStatus() {
         return taskStatus;
@@ -39,10 +42,10 @@ public class Task {
     public void doNew(){
         taskStatus = TaskStatus.NEW;
     }
-    public void doInProgress(){
+    public void doProgress(){
         taskStatus = TaskStatus.IN_PROGRESS;
     }
-    public void doInDone(){
+    public void doDone(){
         taskStatus = TaskStatus.DONE;
     }
 
@@ -54,17 +57,17 @@ public class Task {
 
         Task task = (Task)other;
 
-        return taskId.equals(task.taskId) && getTaskType() == task.getTaskType();
+        return taskId == task.taskId;
     }
     @Override
     public int hashCode(){
-        return taskId.hashCode() + name.hashCode() + description.hashCode() + getTaskType().hashCode();
+        return taskId;
     }
     @Override
     public String toString(){
         return "taskId = '" + taskId + "', name = '" + name + ", desc = " + description + ", taskType = " + getTaskType().name() + ", status = " + taskStatus.name();
     }
-    protected TaskType getTaskType(){
+    public TaskType getTaskType(){
         return TaskType.TASK;
     }
 }

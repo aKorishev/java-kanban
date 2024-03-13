@@ -26,7 +26,7 @@ public class Epic extends Task {
 
         if (getTaskStatus() == TaskStatus.DONE){
             if (task.getTaskStatus() != TaskStatus.DONE)
-                doInProgress();
+                doProgress();
         }
     }
     public void removeSubTask(int taskId){
@@ -37,19 +37,19 @@ public class Epic extends Task {
                 if (i.getTaskStatus() != TaskStatus.DONE)
                     return;
 
-            doInDone();
+            doDone();
         }
     }
     public void clearSubTasks(){
         subTasks.clear();
 
         if (getTaskStatus() == TaskStatus.IN_PROGRESS)
-            doInDone();
+            doDone();
     }
 
     public boolean containsSubTaskId(int subTaskId) { return subTasks.containsKey(subTaskId); }
     @Override
-    protected TaskType getTaskType(){
+    public TaskType getTaskType(){
         return TaskType.EPIC;
     }
 }

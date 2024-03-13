@@ -3,7 +3,6 @@ package taskmanagers;
 import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
-import tools.TaskMap;
 import tools.TaskMapHistory;
 
 import java.util.HashMap;
@@ -12,9 +11,9 @@ import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
     private final TaskMapHistory taskMapHistory = new TaskMapHistory();
-    private final TaskMap<Task> tasks = new TaskMap<>();
-    private final TaskMap<Epic> epics = new TaskMap<>();
-    private final TaskMap< SubTask> subTasks = new TaskMap<>();
+    private final HashMap<Integer, Task> tasks = new HashMap<>();
+    private final HashMap<Integer, Epic> epics = new HashMap<>();
+    private final HashMap<Integer, SubTask> subTasks = new HashMap<>();
 
     private int lastNumber = 0;
     @Override
