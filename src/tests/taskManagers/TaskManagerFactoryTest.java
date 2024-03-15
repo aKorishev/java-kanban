@@ -4,9 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import taskmanagers.InMemoryTaskManager;
 import taskmanagers.TaskManagerFactory;
-import tasks.Task;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class TaskManagerFactoryTest {
 
@@ -14,14 +11,14 @@ class TaskManagerFactoryTest {
     void getInMemoryTaskManager() {
         TaskManagerFactory taskManagerFactory = new TaskManagerFactory();
 
-        Assertions.assertTrue(taskManagerFactory.getInMemoryTaskManager() instanceof InMemoryTaskManager);
+        Assertions.assertTrue(taskManagerFactory.initInMemoryTaskManager() instanceof InMemoryTaskManager);
     }
     @Test
     void getInMemoryTaskManagerNotNull() {
         TaskManagerFactory taskManagerFactory = new TaskManagerFactory();
 
         try{
-            taskManagerFactory.getInMemoryTaskManager().toString();
+            taskManagerFactory.initInMemoryTaskManager().toString();
         }catch (Exception ex){
             Assertions.fail();
         }

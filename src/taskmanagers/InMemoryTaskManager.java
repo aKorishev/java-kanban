@@ -3,19 +3,22 @@ package taskmanagers;
 import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
-import tools.TaskMapHistory;
+import taskHistoryManagers.TaskHistoryManager;
 
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
-    private final TaskMapHistory taskMapHistory = new TaskMapHistory();
+    private final TaskHistoryManager taskHistoryManager;
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private final HashMap<Integer, SubTask> subTasks = new HashMap<>();
-
     private int lastNumber = 0;
+
+    InMemoryTaskManager(TaskHistoryManager taskHistoryManager){
+        this.taskHistoryManager = taskHistoryManager;
+    }
     @Override
     public ArrayList<Epic> getEpics() {
         return new ArrayList<>(epics.values());
@@ -41,20 +44,20 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTask(int taskId){
-        taskMapHistory.put(taskId);
+        taskHistoryManager.add(taskId);
 
         return tasks.get(taskId);
     }
 
     @Override
     public Epic getEpic(int epicId) {
-        taskMapHistory.put(epicId);
+        taskHistoryManager.add(epicId);
 
         return epics.get(epicId);
     }
     @Override
     public SubTask getSubTask(int subTaskId) {
-        taskMapHistory.put(subTaskId);
+        taskHistoryManager.add(subTaskId);
 
         return subTasks.get(subTaskId);
     }
@@ -186,7 +189,7 @@ public class InMemoryTaskManager implements TaskManager {
     public List<Task> getHistory(){
         ArrayList<Task> history = new ArrayList<>();
 
-        for(int key : taskMapHistory.getHistory()){
+        for(int key : taskHistoryManager.getHistory()){
             if (tasks.containsKey(key))
                 history.add(tasks.get(key));
             if (epics.containsKey(key))

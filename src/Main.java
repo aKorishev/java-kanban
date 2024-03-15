@@ -9,7 +9,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         TaskManagerFactory taskManagerFactory = new TaskManagerFactory();
 
-        TaskManager taskManager = taskManagerFactory.getInMemoryTaskManager();
+        TaskManager taskManager = taskManagerFactory.initInMemoryTaskManager();
 
         TaskTree taskTree = createDifferentTasks(taskManager);
         printAllTasks(taskManager, 1);

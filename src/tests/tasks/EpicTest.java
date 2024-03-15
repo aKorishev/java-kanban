@@ -2,6 +2,7 @@ package tests.tasks;
 
 import enums.TaskType;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import taskmanagers.TaskManager;
 import taskmanagers.TaskManagerFactory;
 import tasks.Epic;
@@ -11,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 class EpicTest {
-    @org.junit.jupiter.api.Test
+    @Test
     void getSubTasks() {
         Epic epic = new Epic("name", "description");
 
@@ -24,7 +25,7 @@ class EpicTest {
         Assertions.assertEquals(2, epic.getSubTasks().size());
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void putSubTask() {
         Epic epic = new Epic("name", "description");
 
@@ -33,7 +34,7 @@ class EpicTest {
         Assertions.assertEquals(1, epic.getSubTasks().size());
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void putDoubleSubTask() {
         Epic epic = new Epic("name", "description");
 
@@ -44,7 +45,7 @@ class EpicTest {
         Assertions.assertEquals(1, epic.getSubTasks().size());
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void removeSubTask() {
         Epic epic = new Epic("name", "description");
 
@@ -59,7 +60,7 @@ class EpicTest {
         Assertions.assertEquals(1, epic.getSubTasks().size());
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void clearSubTasks() {
         Epic epic = new Epic("name", "description");
 
@@ -74,7 +75,7 @@ class EpicTest {
         Assertions.assertEquals(0, epic.getSubTasks().size());
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void containsSubTaskId() {
         Epic epic = new Epic("name", "description");
 
@@ -86,7 +87,7 @@ class EpicTest {
         Assertions.assertTrue(epic.containsSubTaskId(10));
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void getTaskType() {
         Epic epic = new Epic("name", "description");
 

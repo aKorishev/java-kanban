@@ -1,12 +1,14 @@
 package taskmanagers;
 
+import taskHistoryManagers.TaskHistoryManagerFactory;
+
 //Вместо класса Managers
 public class TaskManagerFactory {
-    public TaskManager getDefault(){
-        return new InMemoryTaskManager();
+    public static TaskManager getDefault(){
+        return new InMemoryTaskManager(TaskHistoryManagerFactory.initInMemoryTaskHistoryManager());
     }
 
-    public TaskManager getInMemoryTaskManager(){
-        return new InMemoryTaskManager();
+    public TaskManager initInMemoryTaskManager(){
+        return new InMemoryTaskManager(TaskHistoryManagerFactory.initInMemoryTaskHistoryManager());
     }
 }
