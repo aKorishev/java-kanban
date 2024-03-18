@@ -3,12 +3,8 @@ package tests.tasks;
 import enums.TaskType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import taskmanagers.TaskManager;
-import taskmanagers.TaskManagerFactory;
 import tasks.Epic;
 import tasks.SubTask;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 
 class EpicTest {

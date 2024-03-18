@@ -3,7 +3,7 @@ package tests.taskManagers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import taskmanagers.TaskManager;
-import taskmanagers.TaskManagerFactory;
+import taskmanagers.OtherManagerFactory;
 import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
@@ -13,7 +13,7 @@ class InMemoryTaskManagerTest {
     @Test
     void getEpics() {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         taskManager.createEpic(new Epic("",""));
         taskManager.createEpic(new Epic("",""));
@@ -24,7 +24,7 @@ class InMemoryTaskManagerTest {
     @Test
     void getTasks() {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         taskManager.createTask(new Task("",""));
         taskManager.createTask(new Task("",""));
@@ -35,7 +35,7 @@ class InMemoryTaskManagerTest {
     @Test
     void getSubTasksOneEpic() throws Exception {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         Epic epic = new Epic("","");
         taskManager.createEpic(epic);
@@ -56,7 +56,7 @@ class InMemoryTaskManagerTest {
     @Test
     void testGetSubTasksForSomeEpic() throws Exception {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         Epic epic = new Epic("","");
         taskManager.createEpic(epic);
@@ -77,7 +77,7 @@ class InMemoryTaskManagerTest {
     @Test
     void getTask() {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         Task task = new Task("","");
         taskManager.createTask(task);
@@ -88,7 +88,7 @@ class InMemoryTaskManagerTest {
     @Test
     void getEpic() {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         Epic epic = new Epic("","");
         taskManager.createEpic(epic);
@@ -99,7 +99,7 @@ class InMemoryTaskManagerTest {
     @Test
     void getSubTask() throws Exception {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         Epic epic = new Epic("","");
         taskManager.createEpic(epic);
@@ -113,7 +113,7 @@ class InMemoryTaskManagerTest {
     @Test
     void clearAllTasks() {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         taskManager.createTask(new Task("",""));
         taskManager.createTask(new Task("",""));
@@ -126,7 +126,7 @@ class InMemoryTaskManagerTest {
     @Test
     void clearAllEpics() {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         taskManager.createEpic(new Epic("",""));
         taskManager.createEpic(new Epic("",""));
@@ -139,7 +139,7 @@ class InMemoryTaskManagerTest {
     @Test
     void clearAllSubTasks() throws Exception {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         Epic epic = new Epic("","");
         taskManager.createEpic(epic);
@@ -162,7 +162,7 @@ class InMemoryTaskManagerTest {
     @Test
     void removeTask() {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         Task task = new Task("","");
         taskManager.createTask(task);
@@ -179,7 +179,7 @@ class InMemoryTaskManagerTest {
     @Test
     void removeEpic() {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         Epic epic = new Epic("","");
         taskManager.createEpic(epic);
@@ -195,7 +195,7 @@ class InMemoryTaskManagerTest {
     @Test
     void removeEpicWithSubTasks() throws Exception {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         Epic epic = new Epic("","");
         taskManager.createEpic(epic);
@@ -220,7 +220,7 @@ class InMemoryTaskManagerTest {
     @Test
     void removeSubTask() throws Exception {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         Epic epic = new Epic("","");
         taskManager.createEpic(epic);
@@ -243,7 +243,7 @@ class InMemoryTaskManagerTest {
     @Test
     void updateTask() {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         Task task = new Task("","");
         taskManager.createTask(task);
@@ -261,7 +261,7 @@ class InMemoryTaskManagerTest {
     @Test
     void updateEpic() {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         Epic epic = new Epic("","");
         taskManager.createEpic(epic);
@@ -279,7 +279,7 @@ class InMemoryTaskManagerTest {
     @Test
     void updateSubTask() throws Exception {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         Epic epic = new Epic("","");
         taskManager.createEpic(epic);
@@ -301,7 +301,7 @@ class InMemoryTaskManagerTest {
     @Test
     void getHistory() {
         TaskManager taskManager =
-                new TaskManagerFactory().initInMemoryTaskManager();
+                OtherManagerFactory.getDefault();
 
         taskManager.createEpic(new Epic("",""));
         taskManager.createEpic(new Epic("",""));

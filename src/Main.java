@@ -1,5 +1,5 @@
 import taskmanagers.TaskManager;
-import taskmanagers.TaskManagerFactory;
+import taskmanagers.OtherManagerFactory;
 import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
@@ -7,9 +7,8 @@ import tasks.Task;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        TaskManagerFactory taskManagerFactory = new TaskManagerFactory();
 
-        TaskManager taskManager = taskManagerFactory.initInMemoryTaskManager();
+        TaskManager taskManager = OtherManagerFactory.getDefault();
 
         TaskTree taskTree = createDifferentTasks(taskManager);
         printAllTasks(taskManager, 1);

@@ -3,22 +3,20 @@ package tests.taskManagers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import taskmanagers.InMemoryTaskManager;
-import taskmanagers.TaskManagerFactory;
+import taskmanagers.OtherManagerFactory;
 
 class TaskManagerFactoryTest {
 
     @Test
     void getInMemoryTaskManager() {
-        TaskManagerFactory taskManagerFactory = new TaskManagerFactory();
 
-        Assertions.assertTrue(taskManagerFactory.initInMemoryTaskManager() instanceof InMemoryTaskManager);
+        Assertions.assertTrue(OtherManagerFactory.getDefault() instanceof InMemoryTaskManager);
     }
     @Test
     void getInMemoryTaskManagerNotNull() {
-        TaskManagerFactory taskManagerFactory = new TaskManagerFactory();
 
         try{
-            taskManagerFactory.initInMemoryTaskManager().toString();
+            OtherManagerFactory.getDefault().toString();
         }catch (Exception ex){
             Assertions.fail();
         }
