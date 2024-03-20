@@ -1,9 +1,11 @@
 package taskmanagers;
 
+import tasks.Task;
+
 import java.util.Collection;
 
 public interface TaskHistoryManager {
-    void add(int key);
+    void add(Task task);
 
-    Collection<Integer> getHistory();
+    Collection<Task> getHistory();
 }

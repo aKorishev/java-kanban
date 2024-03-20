@@ -4,6 +4,7 @@ import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,22 +44,28 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTask(int taskId){
-        taskHistoryManager.add(taskId);
+        Task task = tasks.get(taskId);
 
-        return tasks.get(taskId);
+        taskHistoryManager.add(task);
+
+        return task;
     }
 
     @Override
     public Epic getEpic(int epicId) {
-        taskHistoryManager.add(epicId);
+        Epic epic = epics.get(epicId);
 
-        return epics.get(epicId);
+        taskHistoryManager.add(epic);
+
+        return epic;
     }
     @Override
     public SubTask getSubTask(int subTaskId) {
-        taskHistoryManager.add(subTaskId);
+        SubTask subTask = subTasks.get(subTaskId);
 
-        return subTasks.get(subTaskId);
+        taskHistoryManager.add(subTask);
+
+        return subTask;
     }
 
     @Override
@@ -185,19 +192,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<Task> getHistory(){
-        ArrayList<Task> history = new ArrayList<>();
-
-        for(int key : taskHistoryManager.getHistory()){
-            if (tasks.containsKey(key))
-                history.add(tasks.get(key));
-            if (epics.containsKey(key))
-                history.add(epics.get(key));
-            if (subTasks.containsKey(key))
-                history.add(subTasks.get(key));
-        }
-
-        return history;
+    public Collection<Task> getHistory(){
+        return taskHistoryManager.getHistory();
     }
 
     private int incrementLastNumber() {
