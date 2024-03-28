@@ -1,5 +1,6 @@
 package taskmanagers;
 
+import historyManagers.HistoryManager;
 import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
@@ -7,17 +8,16 @@ import tasks.Task;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
-    private final TaskHistoryManager taskHistoryManager;
+    private final HistoryManager historyManager;
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private final HashMap<Integer, SubTask> subTasks = new HashMap<>();
     private int lastNumber = 0;
 
-    InMemoryTaskManager(TaskHistoryManager taskHistoryManager){
-        this.taskHistoryManager = taskHistoryManager;
+    InMemoryTaskManager(HistoryManager historyManager){
+        this.historyManager = historyManager;
     }
     @Override
     public ArrayList<Epic> getEpics() {
@@ -46,7 +46,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Task getTask(int taskId){
         Task task = tasks.get(taskId);
 
-        taskHistoryManager.add(task);
+        historyManager.add(task);
 
         return task;
     }
@@ -55,7 +55,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Epic getEpic(int epicId) {
         Epic epic = epics.get(epicId);
 
-        taskHistoryManager.add(epic);
+        historyManager.add(epic);
 
         return epic;
     }
@@ -63,7 +63,7 @@ public class InMemoryTaskManager implements TaskManager {
     public SubTask getSubTask(int subTaskId) {
         SubTask subTask = subTasks.get(subTaskId);
 
-        taskHistoryManager.add(subTask);
+        historyManager.add(subTask);
 
         return subTask;
     }
@@ -193,7 +193,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Collection<Task> getHistory(){
-        return taskHistoryManager.getHistory();
+        return historyManager.getHistory();
     }
 
     private int incrementLastNumber() {
