@@ -1,24 +1,33 @@
 package historyManagers;
 
+
 import tasks.Task;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-public class InMemoryHistoryManager implements HistoryManager {
-    private final List<Task> list = new ArrayList<>();
-    @Override
-    public void add(Task task){
-        if (list.size() == 10) list.removeFirst();
 
-        list.add(task);
+public class InMemoryHistoryManager implements HistoryManager {
+    private final InMemoryHistoryLinkedList list = new InMemoryHistoryLinkedList();
+    @Override
+    public void add(Task element){
+        list.add(element);
     }
 
     @Override
-    public Collection<Task> getHistory(){
+    public void remove(Task element){
+        list.remove(element);
+    }
 
-        return new ArrayList<>(list);
+    @Override
+    public List<Task> getHistory(){
+
+        return list.getHistory();
+    }
+
+    @Override
+    public List<Task> getHistory(int size){
+
+        return list.getHistory(size);
     }
 }
 

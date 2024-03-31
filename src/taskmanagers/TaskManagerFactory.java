@@ -1,8 +1,8 @@
 package taskmanagers;
 
 import historyManagers.InMemoryHistoryManager;
+import tasks.Task;
 
-//Вместо класса Managers
 public class TaskManagerFactory {
     public static TaskManager initInMemoryTaskManager(){
 

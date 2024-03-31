@@ -299,20 +299,120 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void getHistory() {
+    void getHistory() throws Exception {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
-        taskManager.createEpic(new Epic("",""));
-        taskManager.createEpic(new Epic("",""));
+        Epic epic1 = new Epic("","");
+        Epic epic2 = new Epic("","");
+
+        taskManager.createEpic(epic1);
+        taskManager.createEpic(epic2);
         taskManager.createTask(new Task("",""));
         taskManager.createTask(new Task("",""));
+        taskManager.createSubTask(new SubTask("","", epic1.getTaskId()));
+        taskManager.createSubTask(new SubTask("","", epic1.getTaskId()));
+        taskManager.createSubTask(new SubTask("","", epic2.getTaskId()));
+        taskManager.createSubTask(new SubTask("","", epic2.getTaskId()));
 
         for(Task task : taskManager.getTasks())
             taskManager.getTask(task.getTaskId());
         for(Epic epic : taskManager.getEpics())
             taskManager.getEpic(epic.getTaskId());
+        for(SubTask subTask : taskManager.getSubTasks())
+            taskManager.getSubTask(subTask.getTaskId());
 
-        Assertions.assertEquals(4, taskManager.getHistory().size());
+        Assertions.assertEquals(8, taskManager.getHistory().size());
+    }
+
+    @Test
+    void getHistoryAfterRemoveEpic() throws Exception {
+        TaskManager taskManager =
+                TaskManagerFactory.initInMemoryTaskManager();
+
+        Epic epic1 = new Epic("","");
+        Epic epic2 = new Epic("","");
+
+        taskManager.createEpic(epic1);
+        taskManager.createEpic(epic2);
+        taskManager.createTask(new Task("",""));
+        taskManager.createTask(new Task("",""));
+        taskManager.createSubTask(new SubTask("","", epic1.getTaskId()));
+        taskManager.createSubTask(new SubTask("","", epic1.getTaskId()));
+        taskManager.createSubTask(new SubTask("","", epic2.getTaskId()));
+        taskManager.createSubTask(new SubTask("","", epic2.getTaskId()));
+
+        for(Task task : taskManager.getTasks())
+            taskManager.getTask(task.getTaskId());
+        for(Epic epic : taskManager.getEpics())
+            taskManager.getEpic(epic.getTaskId());
+        for(SubTask subTask : taskManager.getSubTasks())
+            taskManager.getSubTask(subTask.getTaskId());
+
+        taskManager.removeEpic(epic1.getTaskId());
+
+        Assertions.assertEquals(5, taskManager.getHistory().size());
+    }
+    @Test
+    void getHistoryAfterRemoveTask() throws Exception {
+        TaskManager taskManager =
+                TaskManagerFactory.initInMemoryTaskManager();
+
+        Epic epic1 = new Epic("","");
+        Epic epic2 = new Epic("","");
+
+        Task controlTask = new Task("","");
+
+        taskManager.createEpic(epic1);
+        taskManager.createEpic(epic2);
+        taskManager.createTask(controlTask);
+        taskManager.createTask(new Task("",""));
+        taskManager.createSubTask(new SubTask("","", epic1.getTaskId()));
+        taskManager.createSubTask(new SubTask("","", epic1.getTaskId()));
+        taskManager.createSubTask(new SubTask("","", epic2.getTaskId()));
+        taskManager.createSubTask(new SubTask("","", epic2.getTaskId()));
+
+        for(Task task : taskManager.getTasks())
+            taskManager.getTask(task.getTaskId());
+        for(Epic epic : taskManager.getEpics())
+            taskManager.getEpic(epic.getTaskId());
+        for(SubTask subTask : taskManager.getSubTasks())
+            taskManager.getSubTask(subTask.getTaskId());
+
+        taskManager.removeTask(controlTask.getTaskId());
+
+        Assertions.assertEquals(7, taskManager.getHistory().size());
+    }
+
+    @Test
+    void getHistoryAfterRemoveSubTask() throws Exception {
+        TaskManager taskManager =
+                TaskManagerFactory.initInMemoryTaskManager();
+
+        Epic epic1 = new Epic("","");
+        Epic epic2 = new Epic("","");
+
+        taskManager.createEpic(epic1);
+        taskManager.createEpic(epic2);
+        taskManager.createTask(new Task("",""));
+        taskManager.createTask(new Task("",""));
+
+        SubTask controlSubTask = new SubTask("","", epic1.getTaskId());
+
+        taskManager.createSubTask(controlSubTask);
+        taskManager.createSubTask(new SubTask("","", epic1.getTaskId()));
+        taskManager.createSubTask(new SubTask("","", epic2.getTaskId()));
+        taskManager.createSubTask(new SubTask("","", epic2.getTaskId()));
+
+        for(Task task : taskManager.getTasks())
+            taskManager.getTask(task.getTaskId());
+        for(Epic epic : taskManager.getEpics())
+            taskManager.getEpic(epic.getTaskId());
+        for(SubTask subTask : taskManager.getSubTasks())
+            taskManager.getSubTask(subTask.getTaskId());
+
+        taskManager.removeSubTask(controlSubTask.getTaskId());
+
+        Assertions.assertEquals(7, taskManager.getHistory().size());
     }
 }
