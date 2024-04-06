@@ -29,5 +29,8 @@ public class InMemoryHistoryManager implements HistoryManager {
 
         return list.getHistory(size);
     }
+
+    @Override
+    public int size() { return list.size(); }
 }
 

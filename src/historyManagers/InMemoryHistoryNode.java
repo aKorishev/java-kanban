@@ -36,4 +36,11 @@ public class InMemoryHistoryNode {
     public Task getTask() {
         return task;
     }
+
+    public boolean equalTasks(InMemoryHistoryNode otherNode){
+        if (task == null || otherNode == null || otherNode.task == null)
+            return false;
+
+        return task.equals(otherNode.task);
+    }
 }

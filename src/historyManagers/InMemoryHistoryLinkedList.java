@@ -13,6 +13,8 @@ public class InMemoryHistoryLinkedList  {
 
     private final Map<Integer, InMemoryHistoryNode> indexes = new TreeMap<>();
 
+    public int size() { return indexes.size(); }
+
     public void add (Task task){
         int taskId = task.getTaskId();
 
@@ -48,21 +50,15 @@ public class InMemoryHistoryLinkedList  {
     public void remove(Task task){
         int taskId = task.getTaskId();
 
-        if (!indexes.containsKey(taskId))
+        InMemoryHistoryNode node = indexes.remove(taskId);
+
+        if (node == null)
             return;
 
-        if (lastNode.getTask().getTaskId() == taskId){
-            InMemoryHistoryNode prevNode = lastNode.getPrevNode();
-            prevNode.setNextNode(null);
-            lastNode = prevNode;
-        }
-        else{
-            InMemoryHistoryNode node = indexes.get(taskId);
+        cutNode(node);
 
-            cutNode(node);
-        }
-
-        indexes.remove(taskId);
+        if (lastNode.equalTasks(node))
+            lastNode = node.getPrevNode();
     }
 
     public List<Task> getHistory(){
