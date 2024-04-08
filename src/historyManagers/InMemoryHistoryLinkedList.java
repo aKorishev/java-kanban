@@ -47,9 +47,7 @@ public class InMemoryHistoryLinkedList  {
         }
     }
 
-    public void remove(Task task){
-        int taskId = task.getTaskId();
-
+    public void remove(int taskId){
         InMemoryHistoryNode node = indexes.remove(taskId);
 
         if (node == null)

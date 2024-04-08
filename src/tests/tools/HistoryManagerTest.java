@@ -55,7 +55,7 @@ class HistoryManagerTest {
         ints = List.of(8,7,6,4,3,2,1,0);
         Task task = new Task("","");
         task.setTaskId(5);
-        historyManager.remove(task);
+        historyManager.remove(task.getTaskId());
 
         List<Task> history = historyManager.getHistory();
 

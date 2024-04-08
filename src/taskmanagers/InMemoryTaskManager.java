@@ -234,8 +234,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     private <T extends Task>  void removeFromHistory(Collection<T> tasks){
         for (Task task : tasks)
-            historyManager.remove(task);
+            historyManager.remove(task.getTaskId());
     }
 
-    private <T extends Task>  void removeFromHistory(T task) { historyManager.remove(task); }
+    private <T extends Task>  void removeFromHistory(T task) { historyManager.remove(task.getTaskId()); }
 }

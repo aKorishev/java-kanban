@@ -14,8 +14,8 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public void remove(Task element){
-        list.remove(element);
+    public void remove(int taskId){
+        list.remove(taskId);
     }
 
     @Override
