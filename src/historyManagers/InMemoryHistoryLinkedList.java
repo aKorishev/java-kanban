@@ -2,16 +2,13 @@ package historyManagers;
 
 import tasks.Task;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 
 public class InMemoryHistoryLinkedList  {
     private InMemoryHistoryNode lastNode = null;
 
-    private final Map<Integer, InMemoryHistoryNode> indexes = new TreeMap<>();
+    private final Map<Integer, InMemoryHistoryNode> indexes = new HashMap<>();
 
     public int size() { return indexes.size(); }
 
