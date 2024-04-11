@@ -1,53 +1,36 @@
 package taskmanagers;
 
-import historyManagers.HistoryManager;
 import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
-    private final HistoryManager historyManager;
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private final HashMap<Integer, SubTask> subTasks = new HashMap<>();
     private int lastNumber = 0;
 
-    public InMemoryTaskManager(HistoryManager historyManager){
-        this.historyManager = historyManager;
-    }
     @Override
     public ArrayList<Epic> getEpics() {
-        ArrayList<Epic> eoics = new ArrayList<>(this.epics.values());
-        addInHistory(eoics);
-        return eoics;
+        return new ArrayList<>(this.epics.values());
     }
 
     @Override
     public ArrayList<Task> getTasks() {
-        ArrayList<Task> tasks = new ArrayList<>(this.tasks.values());
-        addInHistory(tasks);
-        return tasks;
+        return new ArrayList<>(this.tasks.values());
     }
 
     @Override
     public ArrayList<SubTask> getSubTasks() {
-
-        ArrayList<SubTask> subTasks = new ArrayList<>(this.subTasks.values());
-        addInHistory(subTasks);
-        return subTasks;
+        return new ArrayList<>(this.subTasks.values());
     }
 
     @Override
     public ArrayList<SubTask> getSubTasks(int epicId){
         if (epics.containsKey(epicId)) {
-            ArrayList<SubTask> subTasks = epics.get(epicId).getSubTasks();
-            addInHistory(subTasks);
-            return subTasks;
+            return epics.get(epicId).getSubTasks();
         }
 
         return new ArrayList<>();
@@ -55,41 +38,27 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTask(int taskId){
-        Task task = tasks.get(taskId);
 
-        addInHistory(task);
-
-        return task;
+        return tasks.get(taskId);
     }
 
     @Override
     public Epic getEpic(int epicId) {
-        Epic epic = epics.get(epicId);
 
-        addInHistory(epic);
-
-        return epic;
+        return epics.get(epicId);
     }
     @Override
     public SubTask getSubTask(int subTaskId) {
-        SubTask subTask = subTasks.get(subTaskId);
 
-        addInHistory(subTask);
-
-        return subTask;
+        return subTasks.get(subTaskId);
     }
 
     @Override
     public void clearAllTasks(){
-        removeFromHistory(tasks.values());
-
         tasks.clear();
     }
     @Override
     public void clearAllEpics(){
-        removeFromHistory(epics.values());
-        removeFromHistory(subTasks.values());
-
         epics.clear();
         subTasks.clear();
     }
@@ -98,13 +67,10 @@ public class InMemoryTaskManager implements TaskManager {
         for(Epic epic : epics.values())
             epic.clearSubTasks();
 
-        removeFromHistory(subTasks.values());
-
         subTasks.clear();
     }
     @Override
     public void removeTask(int taskId){
-        removeFromHistory(tasks.get(taskId));
         tasks.remove(taskId);
     }
     @Override
@@ -114,12 +80,10 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.get(epicId);
 
         for(SubTask i : epic.getSubTasks()) {
-            removeFromHistory(i);
             subTasks.remove(i.getTaskId());
         }
 
         epics.remove(epicId);
-        removeFromHistory(epic);
     }
     @Override
     public void removeSubTask(int subTaskId){
@@ -133,7 +97,6 @@ public class InMemoryTaskManager implements TaskManager {
             epics.get(epicId).removeSubTask(subTaskId);
 
         subTasks.remove(subTaskId);
-        removeFromHistory(subTask);
     }
 
     @Override
@@ -218,24 +181,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Collection<Task> getHistory(){
-        return historyManager.getHistory();
+        return Set.of();
     }
 
     private int incrementLastNumber() {
         lastNumber++;
         return lastNumber;
     }
-
-    private <T extends Task> void addInHistory(List<T> tasks) {
-        for(Task task : tasks)
-            historyManager.add(task);
-    }
-    private <T extends Task> void addInHistory(T task) { historyManager.add(task);}
-
-    private <T extends Task>  void removeFromHistory(Collection<T> tasks){
-        for (Task task : tasks)
-            historyManager.remove(task.getTaskId());
-    }
-
-    private <T extends Task>  void removeFromHistory(T task) { historyManager.remove(task.getTaskId()); }
 }

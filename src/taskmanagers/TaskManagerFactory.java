@@ -7,7 +7,9 @@ import tasks.Task;
 
 public class TaskManagerFactory {
     public static TaskManager initInMemoryTaskManager(){
+        TaskManager taskManager = new InMemoryTaskManager();
+        HistoryManager historyManager = new InMemoryHistoryManager();
 
-        return new InMemoryTaskManager(HistoryManagerFactory.initInMemoryHistoryManager());
+        return new TaskManagerWithHistory(taskManager, historyManager);
     }
 }

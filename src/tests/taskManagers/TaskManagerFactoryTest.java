@@ -6,12 +6,6 @@ import taskmanagers.InMemoryTaskManager;
 import taskmanagers.TaskManagerFactory;
 
 class TaskManagerFactoryTest {
-
-    @Test
-    void getInMemoryTaskManager() {
-
-        Assertions.assertTrue(TaskManagerFactory.initInMemoryTaskManager() instanceof InMemoryTaskManager);
-    }
     @Test
     void getInMemoryTaskManagerNotNull() {
 
