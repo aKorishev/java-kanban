@@ -14,6 +14,12 @@ public class SubTask extends Task{
         this.epicId = epicId;
     }
 
+    public SubTask(String name, String description, TaskStatus taskStatus, Integer epicId) {
+        super(name, description, taskStatus);
+
+        this.epicId = epicId;
+    }
+
     public int getEpicId() {
         return epicId;
     }
@@ -21,5 +27,14 @@ public class SubTask extends Task{
     @Override
     public TaskType getTaskType(){
         return TaskType.SUBTASK;
+    }
+
+    @Override
+    public boolean equals(Object other){
+        if (!super.equals(other)) return false;
+
+        SubTask subTask = (SubTask) other;
+
+        return epicId == subTask.epicId;
     }
 }

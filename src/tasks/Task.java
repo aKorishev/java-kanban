@@ -57,7 +57,11 @@ public class Task {
 
         Task task = (Task)other;
 
-        return taskId == task.taskId;
+        return
+            taskId == task.taskId
+            && name.equals(task.name)
+            && description.equals(description)
+            && taskStatus == task.taskStatus;
     }
     @Override
     public int hashCode(){

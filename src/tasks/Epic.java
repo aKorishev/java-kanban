@@ -48,8 +48,27 @@ public class Epic extends Task {
     }
 
     public boolean containsSubTaskId(int subTaskId) { return subTasks.containsKey(subTaskId); }
+
     @Override
     public TaskType getTaskType(){
         return TaskType.EPIC;
+    }
+
+    @Override
+    public boolean equals(Object other){
+        if (!super.equals(other)) return false;
+
+        Epic epic = (Epic) other;
+
+        if (subTasks.size() != epic.subTasks.size()) return false;
+
+        for(SubTask subTask : subTasks.values()){
+            int subTaskId = subTask.getTaskId();
+            if (!epic.subTasks.containsKey(subTaskId)) return false;
+
+            if (!((Task) subTask).equals(epic.subTasks.get(subTaskId))) return false;
+        }
+
+        return true;
     }
 }
