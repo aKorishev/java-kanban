@@ -49,8 +49,9 @@ public class TaskManagerWithHistory implements TaskManager {
     public Task getTask(int taskId){
         Task task = taskManagerBase.getTask(taskId);
 
-        if (task != null)
+        if (task != null) {
             addInHistory(task);
+        }
 
         return task;
     }
@@ -59,8 +60,9 @@ public class TaskManagerWithHistory implements TaskManager {
     public Epic getEpic(int epicId) {
         Epic epic = taskManagerBase.getEpic(epicId);
 
-        if (epic != null)
+        if (epic != null) {
             addInHistory(epic);
+        }
 
         return epic;
     }
@@ -68,30 +70,34 @@ public class TaskManagerWithHistory implements TaskManager {
     public SubTask getSubTask(int subTaskId) {
         SubTask subTask = taskManagerBase.getSubTask(subTaskId);
 
-        if (subTask != null)
+        if (subTask != null) {
             addInHistory(subTask);
+        }
 
         return subTask;
     }
 
     @Override
     public void clearAllTasks(){
-        for(Task task : taskManagerBase.getTasks())
+        for(Task task : taskManagerBase.getTasks()) {
             removeFromHistory(task);
+        }
 
         taskManagerBase.clearAllTasks();
     }
     @Override
     public void clearAllEpics(){
-        for(Epic epic : taskManagerBase.getEpics())
+        for(Epic epic : taskManagerBase.getEpics()) {
             removeFromHistory(epic);
+        }
 
         taskManagerBase.clearAllEpics();
     }
     @Override
     public void clearAllSubTasks(){
-        for(SubTask subTask : taskManagerBase.getSubTasks())
+        for(SubTask subTask : taskManagerBase.getSubTasks()) {
             removeFromHistory(subTask);
+        }
 
         taskManagerBase.clearAllSubTasks();
     }
@@ -99,7 +105,9 @@ public class TaskManagerWithHistory implements TaskManager {
     public void removeTask(int taskId){
         Task task = taskManagerBase.getTask(taskId);
 
-        if (task == null) return;
+        if (task == null) {
+            return;
+        }
 
         removeFromHistory(task);
         taskManagerBase.removeTask(taskId);
@@ -108,10 +116,13 @@ public class TaskManagerWithHistory implements TaskManager {
     public void removeEpic(int epicId){
         Epic epic = taskManagerBase.getEpic(epicId);
 
-        if (epic == null) return;
+        if (epic == null) {
+            return;
+        }
 
-        for(SubTask subTask : epic.getSubTasks())
+        for(SubTask subTask : epic.getSubTasks()) {
             removeFromHistory(subTask);
+        }
 
         removeFromHistory(epic);
         taskManagerBase.removeEpic(epicId);
@@ -120,7 +131,9 @@ public class TaskManagerWithHistory implements TaskManager {
     public void removeSubTask(int subTaskId){
         SubTask subTask = taskManagerBase.getSubTask(subTaskId);
 
-        if (subTask == null) return;
+        if (subTask == null) {
+            return;
+        }
 
         removeFromHistory(subTask);
         taskManagerBase.removeSubTask(subTaskId);
@@ -159,8 +172,9 @@ public class TaskManagerWithHistory implements TaskManager {
     }
 
     private <T extends Task> void addInHistory(List<T> tasks) {
-        for(Task task : tasks)
+        for(Task task : tasks) {
             historyManager.add(task);
+        }
     }
     private <T extends Task> void addInHistory(T task) { historyManager.add(task);}
 
