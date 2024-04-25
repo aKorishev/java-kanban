@@ -1,13 +1,21 @@
 package taskmanagers;
 
+import historyManagers.FileBackedHistoryManager;
 import historyManagers.HistoryManager;
-import historyManagers.HistoryManagerFactory;
 import historyManagers.InMemoryHistoryManager;
-import tasks.Task;
 
 public class TaskManagerFactory {
     public static TaskManager initInMemoryTaskManager(){
+        TaskManager taskManager = new InMemoryTaskManager();
+        HistoryManager historyManager = new InMemoryHistoryManager();
 
-        return new InMemoryTaskManager(HistoryManagerFactory.initInMemoryHistoryManager());
+        return new TaskManagerWithHistory(taskManager, historyManager);
+    }
+
+    public static TaskManager initFileBackedTaskManager(String fullNameFile){
+        TaskManager taskManager = new FileBackedTaskManager(fullNameFile);
+        HistoryManager historyManager = new FileBackedHistoryManager();
+
+        return new TaskManagerWithHistory(taskManager, historyManager);
     }
 }
