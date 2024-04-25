@@ -16,83 +16,11 @@ import java.util.Map;
 
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
-    private final String fullNameFile;
+    private final File file;
 
-    //todo убрать static после принятия задачи, чтобы листы с тасками у родителя снова вернуть в private и не создавать в этом методе экземпляр taskmanager, т.к. для этого есть фабрика
-    //todo перенести методы чтения записи в FileManager
-    public static FileBackedTaskManager loadFromFile(File file) {
-        FileBackedTaskManager taskManager = new FileBackedTaskManager(file.getAbsolutePath());
+    public FileBackedTaskManager(File file) {
 
-        Map<Integer, ArrayList<SubTask>> notAddedSubTasks = new HashMap<>();
-
-        try (FileReader fr = new FileReader(file);
-             BufferedReader buffer = new BufferedReader(fr)) {
-
-            buffer.readLine(); //пропуск строки с заголовками
-            while (buffer.ready()) {
-                String line = buffer.readLine();
-                String[] values = line.split(";"); //"id;name;description;taskType;taskStatus;epicId"
-
-                int id = Integer.parseInt(values[0]);
-                String name = values[1];
-                String desc = values[2];
-                TaskType type = TaskType.valueOf(values[3]);
-
-                if (type == TaskType.TASK) {
-                    TaskStatus status = TaskStatus.valueOf(values[4]);
-                    Task task = new Task(name, desc, status);
-                    task.setTaskId(id);
-
-                    taskManager.tasks.put(id, task);
-
-                    continue;
-                }
-
-                if (type == TaskType.EPIC) {
-                    Epic epic = new Epic(name, desc);
-                    epic.setTaskId(id);
-
-                    if (notAddedSubTasks.containsKey(id)) {
-                        for (SubTask subTask : notAddedSubTasks.get(id)) {
-                            epic.putSubTask(subTask);
-                            taskManager.subTasks.put(subTask.getTaskId(), subTask);
-                        }
-
-                        notAddedSubTasks.remove(id);
-                    }
-
-                    taskManager.epics.put(id, epic);
-
-                    continue;
-                }
-
-                if (type == TaskType.SUBTASK) {
-                    TaskStatus status = TaskStatus.valueOf(values[4]);
-                    int epicId = Integer.parseInt(values[5]);
-
-                    SubTask subTask = new SubTask(name, desc, status, epicId);
-                    subTask.setTaskId(id);
-
-                    if (taskManager.epics.containsKey(epicId)) {
-                        taskManager.epics.get(epicId).putSubTask(subTask);
-                        taskManager.subTasks.put(id, subTask);
-                    } else if (notAddedSubTasks.containsKey(epicId)) {
-                        notAddedSubTasks.get(epicId).add(subTask);
-                    } else {
-                        notAddedSubTasks.put(epicId, new ArrayList<>(List.of(subTask)));
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            throw new ManagerLoadException(ex.getMessage(), ex);
-        }
-
-        return taskManager;
-    }
-
-    public FileBackedTaskManager(String fullNameFile) {
-
-        this.fullNameFile = fullNameFile;
+        this.file = file;
     }
 
     @Override
@@ -170,8 +98,81 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         return result;
     }
 
+    void reload(){
+        tasks.clear();
+        epics.clear();
+        subTasks.clear();
+
+        if (!file.exists())
+            return;
+
+        Map<Integer, ArrayList<SubTask>> notAddedSubTasks = new HashMap<>();
+
+        try (FileReader fr = new FileReader(file);
+             BufferedReader buffer = new BufferedReader(fr)) {
+
+            buffer.readLine(); //пропуск строки с заголовками
+            while (buffer.ready()) {
+                String line = buffer.readLine();
+                String[] values = line.split(";"); //"id;name;description;taskType;taskStatus;epicId"
+
+                int id = Integer.parseInt(values[0]);
+                String name = values[1];
+                String desc = values[2];
+                TaskType type = TaskType.valueOf(values[3]);
+
+                if (type == TaskType.TASK) {
+                    TaskStatus status = TaskStatus.valueOf(values[4]);
+                    Task task = new Task(name, desc, status);
+                    task.setTaskId(id);
+
+                    tasks.put(id, task);
+
+                    continue;
+                }
+
+                if (type == TaskType.EPIC) {
+                    Epic epic = new Epic(name, desc);
+                    epic.setTaskId(id);
+
+                    if (notAddedSubTasks.containsKey(id)) {
+                        for (SubTask subTask : notAddedSubTasks.get(id)) {
+                            epic.putSubTask(subTask);
+                            subTasks.put(subTask.getTaskId(), subTask);
+                        }
+
+                        notAddedSubTasks.remove(id);
+                    }
+
+                    epics.put(id, epic);
+
+                    continue;
+                }
+
+                if (type == TaskType.SUBTASK) {
+                    TaskStatus status = TaskStatus.valueOf(values[4]);
+                    int epicId = Integer.parseInt(values[5]);
+
+                    SubTask subTask = new SubTask(name, desc, status, epicId);
+                    subTask.setTaskId(id);
+
+                    if (epics.containsKey(epicId)) {
+                        epics.get(epicId).putSubTask(subTask);
+                        subTasks.put(id, subTask);
+                    } else if (notAddedSubTasks.containsKey(epicId)) {
+                        notAddedSubTasks.get(epicId).add(subTask);
+                    } else {
+                        notAddedSubTasks.put(epicId, new ArrayList<>(List.of(subTask)));
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            throw new ManagerLoadException(ex.getMessage(), ex);
+        }
+    }
+
     private void save() {
-        try (FileWriter writer = new FileWriter(fullNameFile)) {
+        try (FileWriter writer = new FileWriter(file)) {
             writer.write("id;name;description;taskType;taskStatus;epicId\n");
             //writer.flush();
 

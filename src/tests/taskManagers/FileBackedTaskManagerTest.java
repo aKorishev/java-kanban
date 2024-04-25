@@ -24,7 +24,7 @@ public class FileBackedTaskManagerTest {
 
         try {
             TaskManager taskManager =
-                    TaskManagerFactory.initFileBackedTaskManager(tempFile.getAbsolutePath());
+                    TaskManagerFactory.initFileBackedTaskManager(tempFile);
 
             taskManager.createEpic(new Epic("", ""));
             taskManager.createEpic(new Epic("", ""));
@@ -42,7 +42,7 @@ public class FileBackedTaskManagerTest {
 
         try {
             TaskManager taskManager =
-                    TaskManagerFactory.initFileBackedTaskManager(tempFile.getAbsolutePath());
+                    TaskManagerFactory.initFileBackedTaskManager(tempFile);
 
             taskManager.createTask(new Task("",""));
             taskManager.createTask(new Task("",""));
@@ -62,7 +62,7 @@ public class FileBackedTaskManagerTest {
 
         try {
             TaskManager taskManager =
-                    TaskManagerFactory.initFileBackedTaskManager(tempFile.getAbsolutePath());
+                    TaskManagerFactory.initFileBackedTaskManager(tempFile);
 
             Epic epic = new Epic("","");
             taskManager.createEpic(epic);
@@ -95,7 +95,7 @@ public class FileBackedTaskManagerTest {
 
         try {
             TaskManager taskManager =
-                    TaskManagerFactory.initFileBackedTaskManager(tempFile.getAbsolutePath());
+                    TaskManagerFactory.initFileBackedTaskManager(tempFile);
 
             taskManager.createEpic(new Epic("", ""));
             taskManager.createEpic(new Epic("", ""));
@@ -119,7 +119,7 @@ public class FileBackedTaskManagerTest {
 
         try {
             TaskManager taskManager =
-                    TaskManagerFactory.initFileBackedTaskManager(tempFile.getAbsolutePath());
+                    TaskManagerFactory.initFileBackedTaskManager(tempFile);
 
             taskManager.createTask(new Task("",""));
             taskManager.createTask(new Task("",""));
@@ -142,7 +142,7 @@ public class FileBackedTaskManagerTest {
 
         try {
             TaskManager taskManager =
-                    TaskManagerFactory.initFileBackedTaskManager(tempFile.getAbsolutePath());
+                    TaskManagerFactory.initFileBackedTaskManager(tempFile);
 
             Epic epic = new Epic("","");
             taskManager.createEpic(epic);
@@ -179,7 +179,7 @@ public class FileBackedTaskManagerTest {
 
         try {
             TaskManager taskManager =
-                    TaskManagerFactory.initFileBackedTaskManager(tempFile.getAbsolutePath());
+                    TaskManagerFactory.initFileBackedTaskManager(tempFile);
 
             Epic epic = new Epic("","");
             taskManager.createEpic(epic);
@@ -219,7 +219,7 @@ public class FileBackedTaskManagerTest {
 
         try {
             TaskManager taskManager =
-                    TaskManagerFactory.initFileBackedTaskManager(tempFile.getAbsolutePath());
+                    TaskManagerFactory.initFileBackedTaskManager(tempFile);
 
             Epic epic = new Epic("","");
             taskManager.createEpic(epic);
@@ -259,7 +259,7 @@ public class FileBackedTaskManagerTest {
 
         try {
             TaskManager taskManager =
-                    TaskManagerFactory.initFileBackedTaskManager(tempFile.getAbsolutePath());
+                    TaskManagerFactory.initFileBackedTaskManager(tempFile);
 
             Epic epic = new Epic("","");
             taskManager.createEpic(epic);
@@ -304,7 +304,7 @@ public class FileBackedTaskManagerTest {
 
         try {
             TaskManager taskManager =
-                    TaskManagerFactory.initFileBackedTaskManager(tempFile.getAbsolutePath());
+                    TaskManagerFactory.initFileBackedTaskManager(tempFile);
 
             Epic epic = new Epic("","");
             taskManager.createEpic(epic);
@@ -349,7 +349,7 @@ public class FileBackedTaskManagerTest {
 
         try {
             TaskManager taskManager =
-                    TaskManagerFactory.initFileBackedTaskManager(tempFile.getAbsolutePath());
+                    TaskManagerFactory.initFileBackedTaskManager(tempFile);
 
             Epic epic = new Epic("","");
             taskManager.createEpic(epic);
@@ -395,7 +395,7 @@ public class FileBackedTaskManagerTest {
 
         try {
             TaskManager taskManager =
-                    TaskManagerFactory.initFileBackedTaskManager(tempFile.getAbsolutePath());
+                    TaskManagerFactory.initFileBackedTaskManager(tempFile);
 
             Epic epic = new Epic("epic1","epic1desc");
             taskManager.createEpic(epic);
@@ -425,7 +425,7 @@ public class FileBackedTaskManagerTest {
             epic = new Epic("epic3","epic3desc");
             taskManager.createEpic(epic);
 
-            FileBackedTaskManager loadedTaskManager = FileBackedTaskManager.loadFromFile(tempFile);
+            TaskManager loadedTaskManager = TaskManagerFactory.initFileBackedTaskManager(tempFile);
 
             Map<Integer, Task> loadedTasks = loadedTaskManager.getTasks().stream().collect(Collectors.toMap(Task::getTaskId, t -> t));
 

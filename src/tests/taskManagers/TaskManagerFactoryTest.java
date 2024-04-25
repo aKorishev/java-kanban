@@ -20,7 +20,7 @@ class TaskManagerFactoryTest {
     void getFileBackedTaskManagerNotNull() {
 
         try{
-            Assertions.assertNotNull(TaskManagerFactory.initFileBackedTaskManager(File.createTempFile("fileBacked", "test").getAbsolutePath()));
+            Assertions.assertNotNull(TaskManagerFactory.initFileBackedTaskManager(File.createTempFile("fileBacked", "test")));
         }catch (Exception ex){
             Assertions.fail();
         }

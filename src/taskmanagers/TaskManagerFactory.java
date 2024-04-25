@@ -4,6 +4,8 @@ import historyManagers.FileBackedHistoryManager;
 import historyManagers.HistoryManager;
 import historyManagers.InMemoryHistoryManager;
 
+import java.io.File;
+
 public class TaskManagerFactory {
     public static TaskManager initInMemoryTaskManager(){
         TaskManager taskManager = new InMemoryTaskManager();
@@ -12,8 +14,10 @@ public class TaskManagerFactory {
         return new TaskManagerWithHistory(taskManager, historyManager);
     }
 
-    public static TaskManager initFileBackedTaskManager(String fullNameFile){
-        TaskManager taskManager = new FileBackedTaskManager(fullNameFile);
+    public static TaskManager initFileBackedTaskManager(File file){
+        FileBackedTaskManager taskManager = new FileBackedTaskManager(file);
+        taskManager.reload();
+
         HistoryManager historyManager = new FileBackedHistoryManager();
 
         return new TaskManagerWithHistory(taskManager, historyManager);
