@@ -13,6 +13,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -397,6 +399,7 @@ public class FileBackedTaskManagerTest {
             TaskManager taskManager =
                     TaskManagerFactory.initFileBackedTaskManager(tempFile);
 
+
             Epic epic = new Epic("epic1","epic1desc");
             taskManager.createEpic(epic);
 
@@ -414,6 +417,12 @@ public class FileBackedTaskManagerTest {
             taskManager.createSubTask(new SubTask("subtask5","subtask5desc", epic12d));
             taskManager.createSubTask(new SubTask("subtask6","subtask6desc", epic12d));
             taskManager.createSubTask(new SubTask("subtask7","subtask7desc", epic12d));
+
+            SubTask subTask = epic.getSubTasks().getFirst();
+            subTask.setDuration(Duration.ofHours(10));
+            subTask.setStartTime(LocalDateTime.of(2024,01,01,02,43,50));
+            epic.calcTaskDuration();//todo не хватает механизма сохранения после изменения времени для задач
+            int controlTimeEpicId = epic.getTaskId();
 
             taskManager.createTask(new Task("task1","task1desc"));
             taskManager.createTask(new Task("task2","task2desc"));
@@ -439,9 +448,15 @@ public class FileBackedTaskManagerTest {
             Map<Integer, Epic> loadedEpics = loadedTaskManager.getEpics().stream().collect(Collectors.toMap(Task::getTaskId, t -> t));
 
             for(Epic oldEpic : taskManager.getEpics()){
-                Epic loadedEpic = loadedEpics.get(oldEpic.getTaskId());
+                int epicId = oldEpic.getTaskId();
+                Epic loadedEpic = loadedEpics.get(epicId);
                 Assertions.assertNotNull(loadedEpic, "Не найдена Epic: " + oldEpic);
                 Assertions.assertTrue(oldEpic.equals(loadedEpic), "Различаются Epics. \nExpected: " + oldEpic + "\nActual: " + loadedTasks);
+
+                if (epicId == controlTimeEpicId){
+                    loadedEpic.calcTaskDuration();
+                    Assertions.assertEquals(oldEpic.getEndTime(), loadedEpic.getEndTime());
+                }
             }
         }
         finally {

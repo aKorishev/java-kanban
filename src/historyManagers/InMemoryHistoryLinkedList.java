@@ -2,7 +2,9 @@ package historyManagers;
 
 import tasks.Task;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class InMemoryHistoryLinkedList  {
@@ -57,7 +59,7 @@ public class InMemoryHistoryLinkedList  {
     }
 
     public List<Task> getHistory(){
-        ArrayList<Task> result = new ArrayList<>();
+        List<Task> result = new java.util.ArrayList<>(List.of());
 
         InMemoryHistoryNode node = lastNode;
 
@@ -70,7 +72,7 @@ public class InMemoryHistoryLinkedList  {
     }
 
     public List<Task> getHistory(int size){
-        ArrayList<Task> result = new ArrayList<>();
+        List<Task> result = new java.util.ArrayList<>(List.of());
 
         InMemoryHistoryNode node = lastNode;
 

@@ -7,6 +7,10 @@ import org.junit.jupiter.api.Test;
 import tasks.Epic;
 import tasks.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+
 class TaskTest {
 
     @Test
@@ -154,5 +158,61 @@ class TaskTest {
         Task task = new Task("name", "description");
 
         Assertions.assertEquals(TaskType.TASK, task.getTaskType());
+    }
+    @Test
+    void getNulDuration(){
+        Task task = new Task("name", "description");
+
+        Assertions.assertEquals(Duration.ZERO, task.getDuration());
+    }
+    @Test
+    void getDuration(){
+        Task task = new Task("name", "description");
+
+        task.setDuration(Duration.ofMinutes(10));
+
+        Assertions.assertEquals(10, task.getDuration().toMinutes());
+    }
+    @Test
+    void getNulStartTime(){
+        Task task = new Task("name", "description");
+
+        Assertions.assertNull(task.getStartTime());
+    }
+    @Test
+    void getStartTime(){
+        Task task = new Task("name", "description");
+
+        LocalDateTime time = LocalDateTime.now();
+        task.setStartTime(time);
+
+        Assertions.assertEquals(time, task.getStartTime());
+    }
+    @Test
+    void getNullEndTime(){
+        Task task = new Task("name", "description");
+
+        Assertions.assertNull(task.getEndTime());
+    }
+    @Test
+    void getEndTimeWithOutDuration(){
+        Task task = new Task("name", "description");
+
+        LocalDateTime time = LocalDateTime.now();
+
+        task.setStartTime(time);
+
+        Assertions.assertEquals(time, task.getEndTime());
+    }
+    @Test
+    void getEndTime(){
+        Task task = new Task("name", "description");
+
+        LocalDateTime time = LocalDateTime.now();
+        task.setStartTime(time);
+        task.setDuration(Duration.ofHours(5));
+
+
+        Assertions.assertEquals(time.plusHours(5), task.getEndTime());
     }
 }
