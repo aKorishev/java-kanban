@@ -1,34 +1,38 @@
 package taskmanagers;
 
 import tasks.Epic;
+import tasks.SortedTaskMap;
 import tasks.SubTask;
 import tasks.Task;
 
-import java.util.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 public class InMemoryTaskManager implements TaskManager {
-    protected final HashMap<Integer, Task> tasks = new HashMap<>();
-    protected final HashMap<Integer, Epic> epics = new HashMap<>();
-    protected final HashMap<Integer, SubTask> subTasks = new HashMap<>();
+    protected final SortedTaskMap<Task> tasks = new SortedTaskMap<>();
+    protected final SortedTaskMap<Epic> epics = new SortedTaskMap<>();
+    protected final SortedTaskMap<SubTask> subTasks = new SortedTaskMap<>();
     private int lastNumber = 0;
 
     @Override
-    public ArrayList<Epic> getEpics() {
-        return new ArrayList<>(this.epics.values());
+    public List<Epic> getEpics() {
+        return epics.getList();
     }
 
     @Override
-    public ArrayList<Task> getTasks() {
-        return new ArrayList<>(this.tasks.values());
+    public List<Task> getTasks() {
+        return tasks.getList();
     }
 
     @Override
-    public ArrayList<SubTask> getSubTasks() {
-        return new ArrayList<>(this.subTasks.values());
+    public List<SubTask> getSubTasks() {
+        return subTasks.getList();
     }
 
     @Override
-    public Optional<ArrayList<SubTask>> getSubTasks(int epicId){
+    public Optional<List<SubTask>> getSubTasks(int epicId){
         if (epics.containsKey(epicId)) {
             return Optional.of(epics.get(epicId).getSubTasks());
         }
@@ -186,8 +190,65 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Collection<Task> getHistory(){
-        return Set.of();
+    public List<Task> getHistory(){
+        return List.of();
+    }
+
+
+    @Override
+    public void setTaskDuration(int taskId, Duration duration){
+        Task task = tasks.get(taskId);
+        if (task != null)
+            task.setDuration(duration);
+    }
+    @Override
+    public void setEpicDuration(int epicId, Duration duration){
+        Epic epic = epics.get(epicId);
+        if (epic != null)
+            epic.setDuration(duration);
+    }
+    @Override
+    public void setSubTaskDuration(int subTaskId, Duration duration){
+        SubTask subTask = subTasks.get(subTaskId);
+        if (subTask != null) {
+            subTask.setDuration(duration);
+            epics.get(subTask.getEpicId()).calcTaskDuration();
+        }
+    }
+    @Override
+    public void setTaskStartTime(int taskId, LocalDateTime startTime){
+        Task task = tasks.get(taskId);
+        if (task != null)
+            task.setStartTime(startTime);
+    }
+    @Override
+    public void setEpicStartTime(int epicId, LocalDateTime startTime){
+        Epic epic = epics.get(epicId);
+        if (epic != null)
+            epic.setStartTime(startTime);
+    }
+    @Override
+    public void setSubTaskStartTime(int subTaskId, LocalDateTime startTime){
+        SubTask subTask = subTasks.get(subTaskId);
+        if (subTask != null) {
+            subTask.setStartTime(startTime);
+            epics.get(subTask.getEpicId()).calcTaskDuration();
+        }
+    }
+
+    @Override
+    public List<Epic> getPrioritizedEpics(int route) {
+        return epics.getSortedStartTimeSet(route);
+    }
+
+    @Override
+    public List<SubTask> getPrioritizedSubTasks(int route) {
+        return subTasks.getSortedStartTimeSet(route);
+    }
+
+    @Override
+    public List<Task> getPrioritizedTasks(int route) {
+        return tasks.getSortedStartTimeSet(route);
     }
 
     private int incrementNextNumber() {

@@ -13,6 +13,16 @@ public class Main {
         taskManager.createTask(new Task("Придумать реализацию", "Придумать собственную реализацию"));
         taskManager.createTask(new Task("Сдать на проверку", "Сдать на проверку"));
         taskManager.createTask(new Task("Получить первый ответ", "Получить неполные замечания, ломающию собственное виденье задачи"));
+
+		Epic epic = new Epic("Задача 8 спринта", "Streams, datetime, optional");
+
+        taskManager.createEpic(epic);
+        int epicId = epic.getTaskId();
+
+        taskManager.createSubTask(new SubTask("Написать код", "", epicId));
+        taskManager.createSubTask(new SubTask("Покрыть тестами", "", epicId));
+        taskManager.createSubTask(new SubTask("Получить отличную оценку","Даже волнительно, может быть оценка была не очень, но я же молодец, с другой стороны", epicId));
+
         printAllTasks(taskManager, 1);
     }
 

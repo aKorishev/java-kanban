@@ -9,6 +9,7 @@ import tasks.SubTask;
 import tasks.Task;
 
 import java.util.ArrayList;
+import java.util.List;
 
 class InMemoryTaskManagerTest {
 
@@ -52,7 +53,7 @@ class InMemoryTaskManagerTest {
 
         taskManager.createSubTask(new SubTask("","", epic.getTaskId()));
 
-        Assertions.assertEquals(2, taskManager.getSubTasks(epic1Id).map(ArrayList::size).orElse(0));
+        Assertions.assertEquals(2, taskManager.getSubTasks(epic1Id).map(List::size).orElse(0));
     }
 
     @Test

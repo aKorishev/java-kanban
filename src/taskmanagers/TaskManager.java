@@ -4,17 +4,18 @@ import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface TaskManager {
-    Collection<Task> getHistory();
+    List<Task> getHistory();
 
-    ArrayList<Epic> getEpics();
-    ArrayList<Task> getTasks();
-    ArrayList<SubTask> getSubTasks();
-    Optional<ArrayList<SubTask>> getSubTasks(int epicId);
+    List<Epic> getEpics();
+    List<Task> getTasks();
+    List<SubTask> getSubTasks();
+    Optional<List<SubTask>> getSubTasks(int epicId);
 
     Optional<Task> getTask(int taskId);
     Optional<Epic> getEpic(int epicId);
@@ -35,4 +36,16 @@ public interface TaskManager {
     Optional<Integer> createTask(Task task);
     Optional<Integer> createEpic(Epic epic);
     Optional<Integer> createSubTask(SubTask subTask) throws Exception;
+
+    void setTaskDuration(int taskId, Duration duration);
+    void setEpicDuration(int epicId, Duration duration);
+    void setSubTaskDuration(int subTaskId, Duration duration);
+
+    void setTaskStartTime(int taskId, LocalDateTime startTime);
+    void setEpicStartTime(int epicId, LocalDateTime startTime);
+    void setSubTaskStartTime(int subTaskId, LocalDateTime startTime);
+
+    List<Task> getPrioritizedTasks(int route);
+    List<Epic> getPrioritizedEpics(int route);
+    List<SubTask> getPrioritizedSubTasks(int route);
 }
