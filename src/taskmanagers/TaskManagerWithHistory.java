@@ -5,8 +5,8 @@ import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class TaskManagerWithHistory implements TaskManager {
@@ -18,29 +18,29 @@ public class TaskManagerWithHistory implements TaskManager {
         this.historyManager = historyManager;
     }
     @Override
-    public ArrayList<Epic> getEpics() {
-        ArrayList<Epic> epics = taskManagerBase.getEpics();
+    public List<Epic> getEpics() {
+        List<Epic> epics = taskManagerBase.getEpics();
         addInHistory(epics);
         return epics;
     }
 
     @Override
-    public ArrayList<Task> getTasks() {
-        ArrayList<Task> tasks = taskManagerBase.getTasks();
+    public List<Task> getTasks() {
+        List<Task> tasks = taskManagerBase.getTasks();
         addInHistory(tasks);
         return tasks;
     }
 
     @Override
-    public ArrayList<SubTask> getSubTasks() {
-        ArrayList<SubTask> subTasks = taskManagerBase.getSubTasks();
+    public List<SubTask> getSubTasks() {
+        List<SubTask> subTasks = taskManagerBase.getSubTasks();
         addInHistory(subTasks);
         return subTasks;
     }
 
     @Override
-    public ArrayList<SubTask> getSubTasks(int epicId){
-        ArrayList<SubTask> subTasks = taskManagerBase.getSubTasks(epicId);
+    public List<SubTask> getSubTasks(int epicId){
+        List<SubTask> subTasks = taskManagerBase.getSubTasks(epicId);
         addInHistory(subTasks);
         return subTasks;
     }
@@ -140,6 +140,21 @@ public class TaskManagerWithHistory implements TaskManager {
     }
 
     @Override
+    public List<Epic> getPrioritizedEpics(int route) {
+        return taskManagerBase.getPrioritizedEpics(route);
+    }
+
+    @Override
+    public List<SubTask> getPrioritizedSubTasks(int route) {
+        return taskManagerBase.getPrioritizedSubTasks(route);
+    }
+
+    @Override
+    public List<Task> getPrioritizedTasks(int route) {
+        return taskManagerBase.getPrioritizedTasks(route);
+    }
+
+    @Override
     public void updateTask(Task task){
         taskManagerBase.updateTask(task);
     }
@@ -166,7 +181,37 @@ public class TaskManagerWithHistory implements TaskManager {
     }
 
     @Override
-    public Collection<Task> getHistory(){
+    public void setTaskDuration(int taskId, Duration duration) {
+        taskManagerBase.setTaskDuration(taskId, duration);
+    }
+
+    @Override
+    public void setEpicDuration(int epicId, Duration duration) {
+        taskManagerBase.setTaskDuration(epicId, duration);
+    }
+
+    @Override
+    public void setSubTaskDuration(int subTaskId, Duration duration) {
+        taskManagerBase.setSubTaskDuration(subTaskId, duration);
+    }
+
+    @Override
+    public void setTaskStartTime(int taskId, LocalDateTime startTime) {
+        taskManagerBase.setTaskStartTime(taskId, startTime);
+    }
+
+    @Override
+    public void setEpicStartTime(int epicId, LocalDateTime startTime) {
+        taskManagerBase.setEpicStartTime(epicId, startTime);
+    }
+
+    @Override
+    public void setSubTaskStartTime(int subTaskId, LocalDateTime startTime) {
+        taskManagerBase.setSubTaskStartTime(subTaskId, startTime);
+    }
+
+    @Override
+    public List<Task> getHistory(){
 
         return historyManager.getHistory();
     }

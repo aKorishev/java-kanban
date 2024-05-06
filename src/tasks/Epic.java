@@ -4,16 +4,18 @@ package tasks;
 import enums.TaskStatus;
 import enums.TaskType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class Epic extends Task {
-    private final HashMap<Integer, SubTask> subTasks = new HashMap<>();
+    private final SortedTaskMap<SubTask> subTasks = new SortedTaskMap<>();
+    private LocalDateTime endTime;
     public Epic(String name, String description) {
         super(name, description, TaskStatus.NEW);
     }
-    public ArrayList<SubTask> getSubTasks(){
-        return new ArrayList<>(subTasks.values());
+    public List<SubTask> getSubTasks(){
+        return subTasks.getList();
     }
 
     public void putSubTask(SubTask task){
@@ -49,9 +51,77 @@ public class Epic extends Task {
 
     public boolean containsSubTaskId(int subTaskId) { return subTasks.containsKey(subTaskId); }
 
+    public void calcTaskDuration() {
+        if (subTasks.isEmpty()){
+            setDuration(Duration.ZERO);
+            setStartTime(null);
+
+            return;
+        }
+
+        Duration duration = Duration.ZERO;
+        LocalDateTime localDateTime = LocalDateTime.MAX;
+
+        for(SubTask subTask : subTasks.values()){
+            duration = duration.plus(subTask.getDuration());
+
+            LocalDateTime startTime = subTask.getStartTime();
+
+            if (startTime != null && startTime.isBefore(localDateTime))
+                localDateTime = startTime;
+        }
+
+        setDuration(duration);
+
+        if (localDateTime.isBefore(LocalDateTime.MAX)) {
+            setStartTime(localDateTime);
+            endTime = localDateTime.plus(duration);
+        }
+        else {
+            setStartTime(null);
+            endTime = null;
+        }
+
+    }
+
+    public LocalDateTime getEndTime(){
+        calcTaskDuration();
+        return endTime;
+    }
+
     @Override
     public TaskType getTaskType(){
         return TaskType.EPIC;
+    }
+
+    @Override
+    public void doDone() {
+
+    }
+    @Override
+    public void doNew() {
+
+    }
+    @Override
+    public void doProgress() {
+
+    }
+
+    @Override
+    public TaskStatus getTaskStatus() {
+        TaskStatus epicStatus = TaskStatus.NEW;
+        for(SubTask subTask : subTasks.values()){
+            TaskStatus status = subTask.getTaskStatus();
+
+            if (status == epicStatus)
+                continue;
+            if (status == TaskStatus.IN_PROGRESS || status == TaskStatus.NEW)
+                return TaskStatus.IN_PROGRESS;
+
+            epicStatus = status;
+        }
+
+        return epicStatus;
     }
 
     @Override
