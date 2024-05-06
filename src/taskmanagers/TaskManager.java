@@ -6,7 +6,7 @@ import tasks.Task;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Optional;
 
 public interface TaskManager {
     Collection<Task> getHistory();
@@ -14,11 +14,11 @@ public interface TaskManager {
     ArrayList<Epic> getEpics();
     ArrayList<Task> getTasks();
     ArrayList<SubTask> getSubTasks();
-    ArrayList<SubTask> getSubTasks(int epicId);
+    Optional<ArrayList<SubTask>> getSubTasks(int epicId);
 
-    Task getTask(int taskId);
-    Epic getEpic(int epicId);
-    SubTask getSubTask(int subTaskId);
+    Optional<Task> getTask(int taskId);
+    Optional<Epic> getEpic(int epicId);
+    Optional<SubTask> getSubTask(int subTaskId);
 
     void clearAllTasks();
     void clearAllEpics();
@@ -32,7 +32,7 @@ public interface TaskManager {
     void updateEpic(Epic epic);
     void updateSubTask(SubTask subTask);
 
-    int createTask(Task task);
-    int createEpic(Epic epic);
-    int createSubTask(SubTask subTask) throws Exception;
+    Optional<Integer> createTask(Task task);
+    Optional<Integer> createEpic(Epic epic);
+    Optional<Integer> createSubTask(SubTask subTask) throws Exception;
 }

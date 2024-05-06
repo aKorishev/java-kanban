@@ -8,6 +8,7 @@ import tasks.Task;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public class TaskManagerWithHistory implements TaskManager {
     private final HistoryManager historyManager;
@@ -39,40 +40,34 @@ public class TaskManagerWithHistory implements TaskManager {
     }
 
     @Override
-    public ArrayList<SubTask> getSubTasks(int epicId){
-        ArrayList<SubTask> subTasks = taskManagerBase.getSubTasks(epicId);
-        addInHistory(subTasks);
+    public Optional<ArrayList<SubTask>> getSubTasks(int epicId){
+        var subTasks = taskManagerBase.getSubTasks(epicId);
+        subTasks.ifPresent(this::addInHistory);
         return subTasks;
     }
 
     @Override
-    public Task getTask(int taskId){
-        Task task = taskManagerBase.getTask(taskId);
+    public Optional<Task> getTask(int taskId){
+        var task = taskManagerBase.getTask(taskId);
 
-        if (task != null) {
-            addInHistory(task);
-        }
+        task.ifPresent(this::addInHistory);
 
         return task;
     }
 
     @Override
-    public Epic getEpic(int epicId) {
-        Epic epic = taskManagerBase.getEpic(epicId);
+    public Optional<Epic> getEpic(int epicId) {
+        var epic = taskManagerBase.getEpic(epicId);
 
-        if (epic != null) {
-            addInHistory(epic);
-        }
+        epic.ifPresent(this::addInHistory);
 
         return epic;
     }
     @Override
-    public SubTask getSubTask(int subTaskId) {
-        SubTask subTask = taskManagerBase.getSubTask(subTaskId);
+    public Optional<SubTask> getSubTask(int subTaskId) {
+        var subTask = taskManagerBase.getSubTask(subTaskId);
 
-        if (subTask != null) {
-            addInHistory(subTask);
-        }
+        subTask.ifPresent(this::addInHistory);
 
         return subTask;
     }
@@ -103,39 +98,25 @@ public class TaskManagerWithHistory implements TaskManager {
     }
     @Override
     public void removeTask(int taskId){
-        Task task = taskManagerBase.getTask(taskId);
-
-        if (task == null) {
-            return;
-        }
-
-        removeFromHistory(task);
+        var task = taskManagerBase.getTask(taskId);
+        task.ifPresent(this::removeFromHistory);
         taskManagerBase.removeTask(taskId);
     }
     @Override
     public void removeEpic(int epicId){
-        Epic epic = taskManagerBase.getEpic(epicId);
+        var epic = taskManagerBase.getEpic(epicId);
 
-        if (epic == null) {
-            return;
-        }
+        epic.ifPresent(i ->{
+            i.getSubTasks().forEach(this::removeFromHistory);
+            removeFromHistory(i);
+        });
 
-        for(SubTask subTask : epic.getSubTasks()) {
-            removeFromHistory(subTask);
-        }
-
-        removeFromHistory(epic);
         taskManagerBase.removeEpic(epicId);
     }
     @Override
     public void removeSubTask(int subTaskId){
-        SubTask subTask = taskManagerBase.getSubTask(subTaskId);
-
-        if (subTask == null) {
-            return;
-        }
-
-        removeFromHistory(subTask);
+        var subTask = taskManagerBase.getSubTask(subTaskId);
+        subTask.ifPresent(this::removeFromHistory);
         taskManagerBase.removeSubTask(subTaskId);
     }
 
@@ -153,15 +134,15 @@ public class TaskManagerWithHistory implements TaskManager {
     }
 
     @Override
-    public int createTask(Task task){
+    public Optional<Integer> createTask(Task task){
         return taskManagerBase.createTask(task);
     }
     @Override
-    public int createEpic(Epic epic){
+    public Optional<Integer> createEpic(Epic epic){
         return taskManagerBase.createEpic(epic);
     }
     @Override
-    public int createSubTask(SubTask subTask) throws Exception {
+    public Optional<Integer> createSubTask(SubTask subTask) throws Exception {
         return taskManagerBase.createSubTask(subTask);
     }
 

@@ -28,29 +28,29 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<SubTask> getSubTasks(int epicId){
+    public Optional<ArrayList<SubTask>> getSubTasks(int epicId){
         if (epics.containsKey(epicId)) {
-            return epics.get(epicId).getSubTasks();
+            return Optional.of(epics.get(epicId).getSubTasks());
         }
 
-        return new ArrayList<>();
+        return Optional.empty();
     }
 
     @Override
-    public Task getTask(int taskId){
+    public Optional<Task> getTask(int taskId){
 
-        return tasks.get(taskId);
+        return Optional.ofNullable(tasks.get(taskId));
     }
 
     @Override
-    public Epic getEpic(int epicId) {
+    public Optional<Epic> getEpic(int epicId) {
 
-        return epics.get(epicId);
+        return Optional.ofNullable(epics.get(epicId));
     }
     @Override
-    public SubTask getSubTask(int subTaskId) {
+    public Optional<SubTask> getSubTask(int subTaskId) {
 
-        return subTasks.get(subTaskId);
+        return Optional.ofNullable(subTasks.get(subTaskId));
     }
 
     @Override
@@ -64,7 +64,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
     @Override
     public void clearAllSubTasks(){
-        for(Epic epic : epics.values())
+        for(var epic : epics.values())
             epic.clearSubTasks();
 
         subTasks.clear();
@@ -119,14 +119,14 @@ public class InMemoryTaskManager implements TaskManager {
     }
     @Override
     public void updateSubTask(SubTask subTask){
-        int subTaskId = subTask.getTaskId();
+        var subTaskId = subTask.getTaskId();
 
         if (!subTasks.containsKey(subTaskId)) return;
 
-        SubTask oldSubTask = subTasks.get(subTaskId);
+        var oldSubTask = subTasks.get(subTaskId);
 
-        int oldEpicId = oldSubTask.getEpicId();
-        int newEpicId = subTask.getEpicId();
+        var oldEpicId = oldSubTask.getEpicId();
+        var newEpicId = subTask.getEpicId();
 
         if (oldEpicId != newEpicId && epics.containsKey(newEpicId))
             epics.get(newEpicId).removeSubTask(subTaskId);
@@ -135,48 +135,54 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public int createTask(Task task){
-        int taskId = incrementLastNumber();
+    public Optional<Integer> createTask(Task task){
+        var nextNumber = incrementNextNumber();
 
-        task.setTaskId(taskId);
+        if (tasks.containsKey(nextNumber))
+            return Optional.empty();
 
-        tasks.put(taskId, task);
+        task.setTaskId(nextNumber);
 
-        return taskId;
+        tasks.put(nextNumber, task);
+
+        return Optional.of(nextNumber);
     }
     @Override
-    public int createEpic(Epic epic){
-        int taskId = incrementLastNumber();
+    public Optional<Integer> createEpic(Epic epic){
+        var nextNumber = incrementNextNumber();
 
-        epic.setTaskId(taskId);
+        if (epics.containsKey(nextNumber))
+            return Optional.empty();
 
-        epics.put(taskId, epic);
+        epic.setTaskId(nextNumber);
 
-        for(SubTask subTask : epic.getSubTasks()) {
-            int subTaskId = subTask.getTaskId();
-            if (!subTasks.containsKey(subTaskId))
-                subTasks.put(subTaskId, subTask);
+        epics.put(nextNumber, epic);
+
+        for(var subTask: epic.getSubTasks()){
+            var subTaskId = incrementNextNumber();
+            subTask.setTaskId(subTaskId);
+            subTask.setEpicId(nextNumber);
+
+            subTasks.put(subTaskId, subTask);
         }
 
-        return taskId;
+        return Optional.of(nextNumber);
     }
     @Override
-    public int createSubTask(SubTask subTask) throws Exception {
+    public Optional<Integer> createSubTask(SubTask subTask) {
         int epicId = subTask.getEpicId();
         if (!epics.containsKey(epicId))
-            throw new Exception("Epic not found");
+            return Optional.empty();
 
-        int subTaskId = incrementLastNumber();
+        var nextNumber = incrementNextNumber();
 
-        subTask.setTaskId(subTaskId);
+        subTask.setTaskId(nextNumber);
 
-        subTasks.put(subTaskId, subTask);
+        subTasks.put(nextNumber, subTask);
 
-        Epic epic = epics.get(epicId);
-        if (!epic.containsSubTaskId(subTaskId))
-            epic.putSubTask(subTask);
+        epics.get(epicId).putSubTask(subTask);
 
-        return subTaskId;
+        return Optional.of(nextNumber);
     }
 
     @Override
@@ -184,7 +190,7 @@ public class InMemoryTaskManager implements TaskManager {
         return Set.of();
     }
 
-    private int incrementLastNumber() {
+    private int incrementNextNumber() {
         lastNumber++;
         return lastNumber;
     }

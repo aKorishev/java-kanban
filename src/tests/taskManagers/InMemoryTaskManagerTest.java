@@ -8,6 +8,8 @@ import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
 
+import java.util.ArrayList;
+
 class InMemoryTaskManagerTest {
 
     @Test
@@ -50,7 +52,7 @@ class InMemoryTaskManagerTest {
 
         taskManager.createSubTask(new SubTask("","", epic.getTaskId()));
 
-        Assertions.assertEquals(2, taskManager.getSubTasks(epic1Id).size());
+        Assertions.assertEquals(2, taskManager.getSubTasks(epic1Id).map(ArrayList::size).orElse(0));
     }
 
     @Test
@@ -82,7 +84,12 @@ class InMemoryTaskManagerTest {
         Task task = new Task("","");
         taskManager.createTask(task);
 
-        Assertions.assertTrue(task.equals(taskManager.getTask(task.getTaskId())));
+        var addedTask = taskManager.getTask(task.getTaskId());
+
+        if (addedTask.isEmpty())
+            Assertions.fail("added task isEmpty");
+
+        Assertions.assertEquals(task, addedTask.get());
     }
 
     @Test
@@ -93,9 +100,9 @@ class InMemoryTaskManagerTest {
         Task task = new Task("","");
         taskManager.createTask(task);
 
-        task = taskManager.getTask(-50);
+        var emptyTask = taskManager.getTask(-50);
 
-        Assertions.assertNull(task);
+        Assertions.assertTrue(emptyTask.isEmpty());
     }
 
     @Test
@@ -103,10 +110,15 @@ class InMemoryTaskManagerTest {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
-        Epic epic = new Epic("","");
+        Epic epic = new Epic("epic","");
         taskManager.createEpic(epic);
 
-        Assertions.assertTrue(epic.equals(taskManager.getEpic(epic.getTaskId())));
+        var addedTask = taskManager.getEpic(epic.getTaskId());
+
+        if (addedTask.isEmpty())
+            Assertions.fail("added epic isEmpty");
+
+        Assertions.assertEquals(epic, addedTask.get());
     }
 
     @Test
@@ -120,7 +132,12 @@ class InMemoryTaskManagerTest {
         SubTask subTask = new SubTask("","", epic.getTaskId());
         taskManager.createSubTask(subTask);
 
-        Assertions.assertTrue(subTask.equals(taskManager.getSubTask(subTask.getTaskId())));
+        var addedSubTask = taskManager.getSubTask(subTask.getTaskId());
+
+        if (addedSubTask.isEmpty())
+            Assertions.fail("added subTask isEmpty");
+
+        Assertions.assertEquals(subTask, addedSubTask.get());
     }
 
     @Test
@@ -268,7 +285,7 @@ class InMemoryTaskManagerTest {
 
         taskManager.updateTask(task);
 
-        Assertions.assertTrue(taskManager.getTask(taskId).getName().equals("updated task"));
+        Assertions.assertEquals("updated task", taskManager.getTask(taskId).map(Task::getName).orElse(""));
     }
 
     @Test
@@ -286,7 +303,7 @@ class InMemoryTaskManagerTest {
 
         taskManager.updateEpic(epic);
 
-        Assertions.assertTrue(taskManager.getEpic(epicId).getName().equals("updated task"));
+        Assertions.assertEquals("updated task", taskManager.getEpic(epicId).map(Task::getName).orElse(""));
     }
 
     @Test
@@ -308,7 +325,7 @@ class InMemoryTaskManagerTest {
 
         taskManager.updateSubTask(updatedSubTask);
 
-        Assertions.assertTrue(taskManager.getSubTask(subTaskId).getName().equals("updated task"));
+        Assertions.assertEquals("updated task", taskManager.getSubTask(subTaskId).map(Task::getName).orElse(""));
     }
 
     @Test
@@ -359,7 +376,7 @@ class InMemoryTaskManagerTest {
         Assertions.assertEquals(0, taskManager.getHistory().size());
     }
     @Test
-    void getHistoryWithoutGetAnyTasks() throws Exception {
+    void getHistoryWithoutGetAnyTasks() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -369,7 +386,7 @@ class InMemoryTaskManagerTest {
         Assertions.assertEquals(0, taskManager.getHistory().size());
     }
     @Test
-    void getHistoryAfterGetAllTasks() throws Exception {
+    void getHistoryAfterGetAllTasks() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 

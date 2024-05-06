@@ -9,10 +9,7 @@ import tools.ManagerLoadException;
 import tools.ManagerSaveException;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
@@ -78,22 +75,22 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    public int createTask(Task task) {
-        int result = super.createTask(task);
+    public Optional<Integer> createTask(Task task) {
+        var result = super.createTask(task);
         save();
         return result;
     }
 
     @Override
-    public int createEpic(Epic epic) {
-        int result = super.createEpic(epic);
+    public Optional<Integer> createEpic(Epic epic) {
+        var result = super.createEpic(epic);
         save();
         return result;
     }
 
     @Override
-    public int createSubTask(SubTask subTask) throws Exception {
-        int result = super.createSubTask(subTask);
+    public Optional<Integer> createSubTask(SubTask subTask) {
+        var result = super.createSubTask(subTask);
         save();
         return result;
     }
