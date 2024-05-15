@@ -3,6 +3,7 @@ package taskmanagers;
 import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
+import tools.Option;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -29,13 +30,13 @@ public interface TaskManager {
     void removeEpic(int epicId);
     void removeSubTask(int subTaskId);
 
-    void updateTask(Task task);
-    void updateEpic(Epic epic);
-    void updateSubTask(SubTask subTask);
+    Optional<Exception> updateTask(Task task);
+    Optional<Exception> updateEpic(Epic epic);
+    Optional<Exception> updateSubTask(SubTask subTask);
 
-    Optional<Integer> createTask(Task task);
-    Optional<Integer> createEpic(Epic epic);
-    Optional<Integer> createSubTask(SubTask subTask) throws Exception;
+    Optional<Exception> createTask(Task task);
+    Optional<Exception> createEpic(Epic epic);
+    Optional<Exception> createSubTask(SubTask subTask);
 
     void setTaskDuration(int taskId, Duration duration);
     void setEpicDuration(int epicId, Duration duration);
@@ -45,7 +46,14 @@ public interface TaskManager {
     void setEpicStartTime(int epicId, LocalDateTime startTime);
     void setSubTaskStartTime(int subTaskId, LocalDateTime startTime);
 
+
+    List<Task> getPrioritizedAll(int route);
     List<Task> getPrioritizedTasks(int route);
     List<Epic> getPrioritizedEpics(int route);
     List<SubTask> getPrioritizedSubTasks(int route);
+
+    boolean getHasCrossAll(Task task);
+    boolean containsIndex(int id);
+
+    void refreshSortedMap();
 }

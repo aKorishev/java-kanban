@@ -121,6 +121,16 @@ public class TaskManagerWithHistory implements TaskManager {
     }
 
     @Override
+    public List<Task> getPrioritizedAll(int route) {
+        return taskManagerBase.getPrioritizedAll(route);
+    }
+
+    @Override
+    public List<Task> getPrioritizedTasks(int route) {
+        return taskManagerBase.getPrioritizedTasks(route);
+    }
+
+    @Override
     public List<Epic> getPrioritizedEpics(int route) {
         return taskManagerBase.getPrioritizedEpics(route);
     }
@@ -131,33 +141,43 @@ public class TaskManagerWithHistory implements TaskManager {
     }
 
     @Override
-    public List<Task> getPrioritizedTasks(int route) {
-        return taskManagerBase.getPrioritizedTasks(route);
+    public boolean getHasCrossAll(Task task) {
+        return taskManagerBase.getHasCrossAll(task);
     }
 
     @Override
-    public void updateTask(Task task){
-        taskManagerBase.updateTask(task);
-    }
-    @Override
-    public void updateEpic(Epic epic) {
-        taskManagerBase.updateEpic(epic);
-    }
-    @Override
-    public void updateSubTask(SubTask subTask){
-        taskManagerBase.updateSubTask(subTask);
+    public boolean containsIndex(int id) {
+        return taskManagerBase.containsIndex(id);
     }
 
     @Override
-    public Optional<Integer> createTask(Task task){
+    public void refreshSortedMap() {
+        taskManagerBase.refreshSortedMap();
+    }
+
+    @Override
+    public Optional<Exception> updateTask(Task task){
+        return taskManagerBase.updateTask(task);
+    }
+    @Override
+    public Optional<Exception> updateEpic(Epic epic) {
+        return taskManagerBase.updateEpic(epic);
+    }
+    @Override
+    public Optional<Exception> updateSubTask(SubTask subTask){
+        return taskManagerBase.updateSubTask(subTask);
+    }
+
+    @Override
+    public Optional<Exception> createTask(Task task){
         return taskManagerBase.createTask(task);
     }
     @Override
-    public Optional<Integer> createEpic(Epic epic){
+    public Optional<Exception> createEpic(Epic epic){
         return taskManagerBase.createEpic(epic);
     }
     @Override
-    public Optional<Integer> createSubTask(SubTask subTask) throws Exception {
+    public Optional<Exception> createSubTask(SubTask subTask) {
         return taskManagerBase.createSubTask(subTask);
     }
 

@@ -145,7 +145,7 @@ class EpicTest {
         Epic epic = new Epic("name", "description");
 
         epic.calcTaskDuration();
-        Assertions.assertNull(epic.getStartTime());
+        Assertions.assertTrue(epic.getStartTime().isEmpty());
     }
     @Test
     void getMinimumStartTimeSubtasks(){
@@ -162,7 +162,7 @@ class EpicTest {
         epic.putSubTask(subTask);
 
         epic.calcTaskDuration();
-        Assertions.assertEquals(2, epic.getStartTime().getMinute());
+        Assertions.assertEquals(2, epic.getStartTime().get().getMinute());
     }
     @Test
     void getMinimumStartTimeSubtasksWhileOneSubTaskWithoutStartTime(){
@@ -178,7 +178,7 @@ class EpicTest {
         epic.putSubTask(subTask);
 
         epic.calcTaskDuration();
-        Assertions.assertEquals(3, epic.getStartTime().getMinute());
+        Assertions.assertEquals(3, epic.getStartTime().get().getMinute());
     }
     @Test
     void getMinimumStartTimeSubtasksWhileAllSubTaskWithoutStartTime(){
@@ -193,14 +193,14 @@ class EpicTest {
         epic.putSubTask(subTask);
 
         epic.calcTaskDuration();
-        Assertions.assertNull(epic.getStartTime());
+        Assertions.assertTrue(epic.getStartTime().isEmpty());
     }
     @Test
     void getEndTimeWithOutSubtasks(){
         Epic epic = new Epic("name", "description");
 
         epic.calcTaskDuration();
-        Assertions.assertNull(epic.getEndTime());
+        Assertions.assertTrue(epic.getEndTime().isEmpty());
     }
     @Test
     void getEndTime(){
@@ -219,7 +219,7 @@ class EpicTest {
         epic.putSubTask(subTask);
 
         epic.calcTaskDuration();
-        Assertions.assertEquals(LocalDateTime.of(2024,5, 1, 4, 12), epic.getEndTime());
+        Assertions.assertTrue(epic.getEndTime().filter(LocalDateTime.of(2024,5, 1, 4, 12)::equals).isPresent());
     }
     @Test
     void getEndTimeWhileOneSubTaskWithoutStartTime(){
@@ -237,7 +237,7 @@ class EpicTest {
         epic.putSubTask(subTask);
 
         epic.calcTaskDuration();
-        Assertions.assertEquals(LocalDateTime.of(2024,5, 1, 4, 13), epic.getEndTime());
+        Assertions.assertTrue(epic.getEndTime().filter(LocalDateTime.of(2024,5, 1, 4, 13)::equals).isPresent());
     }
     @Test
     void getEndTimeWhileOneSubTaskWithoutDuration(){
@@ -254,7 +254,7 @@ class EpicTest {
         epic.putSubTask(subTask);
 
         epic.calcTaskDuration();
-        Assertions.assertEquals(LocalDateTime.of(2024,5, 1, 2, 13), epic.getEndTime());
+        Assertions.assertTrue(epic.getEndTime().filter(LocalDateTime.of(2024,5, 1, 2, 13)::equals).isPresent());
     }
     @Test
     void getEndTimeWhileAllSubTaskWithoutStartTime(){
@@ -271,7 +271,7 @@ class EpicTest {
         epic.putSubTask(subTask);
 
         epic.calcTaskDuration();
-        Assertions.assertNull(epic.getEndTime());
+        Assertions.assertTrue(epic.getEndTime().isEmpty());
     }
     @Test
     void allSubTaskNew(){

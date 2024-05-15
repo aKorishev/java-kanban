@@ -1,25 +1,14 @@
 package tasks;
 
+import enums.TaskType;
+
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.List;
+import java.util.*;
 
-public class SortedTaskMap <T extends Task> extends TreeMap<Integer, T> {
-    private final Comparator<LocalDateTime> comparatorStartTime = (d1, d2) -> {
-        if (d1 == null && d2 == null)
-            return 0;
-
-        if (d1 != null && d2 == null)
-            return -1;
-
-        if (d1 == null)
-            return 1;
-
-        return d1.compareTo(d2);
-    };
+public class SortedTaskMap <T extends Task> extends HashMap<Integer, T> {
+    private final Comparator<Optional<LocalDateTime>> comparatorStartTime = (d1, d2) -> d1
+            .map(d -> d2.map(d::compareTo).orElse(-1))
+            .orElse(d2.map(d -> 1).orElse(0));
 
     private final Set<T> sortedStartTimeSet = new TreeSet<>((t1, t2) ->
             comparatorStartTime.compare(t1.getStartTime(), t2.getStartTime()));
@@ -32,110 +21,135 @@ public class SortedTaskMap <T extends Task> extends TreeMap<Integer, T> {
 
         return List.copyOf(sortedDeskStartTimeSet);
     }
-    public void put(T element){
-        if (element == null)
-            return;
 
-        put(element.getTaskId(), element);
+    public void refreshSortedSets(T element){
+        int id = element.getTaskId();
+        sortedStartTimeSet.removeIf(i -> i.getTaskId() == id);
+        sortedDeskStartTimeSet.removeIf(i -> i.getTaskId() == id);
+
+        element.getStartTime()
+                .ifPresent(i ->{
+                    sortedStartTimeSet.add(element);
+                    sortedDeskStartTimeSet.add(element);
+                });
     }
 
-    public void setStartTime (Integer key, LocalDateTime newStartTime){
-        if (!super.containsKey(key))
-            return;
+    public void refreshSortedSets(){
+        sortedStartTimeSet.clear();
+        sortedDeskStartTimeSet.clear();
 
-        T element = super.get(key);
-        LocalDateTime oldStartTime = element.getStartTime();
-
-        if (oldStartTime == null && newStartTime == null)
-            return;
-
-        if (oldStartTime != null && newStartTime == null){
-            sortedStartTimeSet.remove(element);
-            sortedDeskStartTimeSet.remove(element);
-
-            element.setStartTime(null);
-        } else if (oldStartTime == null) {
-            element.setStartTime(newStartTime);
-
-            sortedStartTimeSet.add(element);
-            sortedDeskStartTimeSet.add(element);
-        } else if (!oldStartTime.isEqual(newStartTime)) {
-            sortedStartTimeSet.remove(element);
-            sortedDeskStartTimeSet.remove(element);
-
-            element.setStartTime(newStartTime);
-
-            sortedStartTimeSet.add(element);
-            sortedDeskStartTimeSet.add(element);
+        for (var element : super.values()){
+            if (element.getStartTime().isPresent()){
+                sortedStartTimeSet.add(element);
+                sortedDeskStartTimeSet.add(element);
+            }
         }
     }
 
     public boolean getHasCross(){
-        LocalDateTime[] prevPeriod = new LocalDateTime[1];
-
         if (sortedStartTimeSet.size() < 2)
             return false;
 
-        T firstValue = sortedStartTimeSet.stream().toList().getFirst();
-        prevPeriod[0] = firstValue.getEndTime();
+        Optional<LocalDateTime> prevEndTimeOpt = Optional.empty();
 
-        return sortedStartTimeSet.stream()
-                .skip(1)
-                .anyMatch(i -> {
-                    if (prevPeriod[0].isAfter(i.getStartTime()))
-                        return true;
+        for (var item :sortedStartTimeSet){
+            if (item.getStartTime().isPresent()){
+                if (prevEndTimeOpt.isEmpty()) {
+                    prevEndTimeOpt = item.getEndTime();
+                    continue;
+                }
 
-                    prevPeriod[0] = i.getEndTime();
+                var prevEndTime = prevEndTimeOpt.get();
+                var startTime = item.getStartTime().get();
 
-                    return false;
-                });
+                if (startTime.isBefore(prevEndTime))
+                    return true;
+
+                prevEndTimeOpt = item.getEndTime();
+            }
+        }
+
+        return false;
     }
 
-    public boolean getHasCross(T element){
-        LocalDateTime startTime = element.getStartTime();
-
-        if (startTime == null || sortedStartTimeSet.isEmpty())
+    public boolean getHasCross(Task element){
+        if (element.getTaskType() == TaskType.EPIC)
+            return false;
+        if (element.getStartTime().isEmpty() || element.getEndTime().isEmpty())
             return false;
 
-        LocalDateTime endTime = element.getEndTime();
+        LocalDateTime elementStartTime = element.getStartTime().get();
+        LocalDateTime elementEndTime = element.getEndTime().get(); //Подразумеваем, если есть startTime, endTime так же должен быть
+        var elementId = element.getTaskId();
 
-        return sortedStartTimeSet.stream()
-                .anyMatch( i -> (i.getStartTime().isBefore(startTime) && i.getEndTime().isAfter(startTime))
-                            || (i.getStartTime().isBefore(endTime) && i.getEndTime().isAfter(endTime)));
+        for (var item :sortedStartTimeSet){
+            if (elementId == item.getTaskId())
+                continue;
+
+            if (item.getStartTime().isEmpty() || item.getEndTime().isEmpty())
+                continue;
+
+            LocalDateTime itemStartTime = item.getStartTime().get();
+
+            if (itemStartTime.isAfter(elementStartTime) && itemStartTime.isBefore(elementEndTime))
+                return true;
+
+            LocalDateTime itemEndTime = item.getEndTime().get(); //Подразумеваем, если есть startTime, endTime так же должен быть
+
+            if (itemEndTime.isAfter(elementStartTime) && itemEndTime.isBefore(elementEndTime))
+                return true;
+            }
+
+        return false;
     }
 
     public List<T> getList() {
         return List.copyOf(super.values());
     }
 
+    public Optional<Exception> put (T element) {
+        if (element == null)
+            return Optional.empty();
+
+        var key = element.getTaskId();
+
+        if (containsKey(key))
+            return Optional.of(new Exception("Индекс уже есть в коллекции"));
+
+        if (getHasCross(element))
+            return Optional.of(new Exception("Новый элемент пересекается с другими"));
+
+        super.put(key, element);
+
+        element.getStartTime()
+                        .ifPresent(time ->{
+                            sortedStartTimeSet.add(element);
+                            sortedDeskStartTimeSet.add(element);
+                        });
+
+        return Optional.empty();
+    }
+
+    public void remove(int key){
+        if (containsKey(key))
+            remove(super.get(key));
+    }
+
+    public void remove(T element){
+        super.remove(element.getTaskId());
+
+        element.getStartTime().ifPresent(i ->{
+            var id = element.getTaskId();
+            sortedStartTimeSet.removeIf(t -> t.getTaskId() == id);
+            sortedDeskStartTimeSet.removeIf(t -> t.getTaskId() == id);
+        });
+    }
+
     @Override
     public T put(Integer key, T elenent)  {
-        if (elenent == null)
-            return null;
+        put(elenent);
 
-        T oldValue = super.get(key);
-
-        if (oldValue != null){
-            LocalDateTime oldStartTime = oldValue.getStartTime();
-
-            if (oldStartTime != null) {
-                sortedStartTimeSet.remove(oldValue);
-                sortedDeskStartTimeSet.remove(oldValue);
-            }
-        }
-
-        if (getHasCross(elenent))
-            //Поднадобилось необрабатываемое исключение, т.к. это переопределяемый метод
-            throw new Error("Новый элемент пересекается с другими");
-
-        //Из ТЗ, задачи без времени не должны попадать в выдачу сортированных
-        if (elenent.getStartTime() != null) {
-            sortedStartTimeSet.add(elenent);
-            sortedDeskStartTimeSet.add(elenent);
-        }
-
-
-        return super.put(key, elenent);
+        return null;
     }
 
     @Override

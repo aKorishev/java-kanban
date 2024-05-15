@@ -7,10 +7,11 @@ import enums.TaskType;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public class Epic extends Task {
     private final SortedTaskMap<SubTask> subTasks = new SortedTaskMap<>();
-    private LocalDateTime endTime;
+    private Optional<LocalDateTime> endTime = Optional.empty();
     public Epic(String name, String description) {
         super(name, description, TaskStatus.NEW);
     }
@@ -18,29 +19,29 @@ public class Epic extends Task {
         return subTasks.getList();
     }
 
-    public void putSubTask(SubTask task){
-        int taskId = task.getTaskId();
+    public void putSubTask(SubTask subTask){
+        int taskId = subTask.getTaskId();
 
         if (subTasks.containsKey(taskId))
             return;
 
-        subTasks.put(taskId, task);
+        subTasks.put(taskId, subTask);
 
         if (getTaskStatus() == TaskStatus.DONE){
-            if (task.getTaskStatus() != TaskStatus.DONE)
+            if (subTask.getTaskStatus() != TaskStatus.DONE)
                 doProgress();
         }
+
+        subTask.getStartTime().ifPresent(i -> this.calcTaskDuration());
     }
-    public void removeSubTask(int taskId){
-        SubTask subTask = subTasks.remove(taskId);
+    public void removeSubTask(int taskId) {
+        subTasks.remove(taskId);
 
-        if (getTaskStatus() == TaskStatus.IN_PROGRESS && subTask.getTaskStatus() != TaskStatus.DONE){
-            for(SubTask i: subTasks.values())
-                if (i.getTaskStatus() != TaskStatus.DONE)
-                    return;
+        for (SubTask i : subTasks.values())
+            if (i.getTaskStatus() != TaskStatus.DONE)
+                return;
 
-            doDone();
-        }
+        doDone();
     }
     public void clearSubTasks(){
         subTasks.clear();
@@ -54,37 +55,34 @@ public class Epic extends Task {
     public void calcTaskDuration() {
         if (subTasks.isEmpty()){
             setDuration(Duration.ZERO);
-            setStartTime(null);
+            setStartTime(Optional.empty());
 
             return;
         }
 
         Duration duration = Duration.ZERO;
-        LocalDateTime localDateTime = LocalDateTime.MAX;
+        Optional<LocalDateTime> epicStartTime = Optional.empty();
 
         for(SubTask subTask : subTasks.values()){
             duration = duration.plus(subTask.getDuration());
 
-            LocalDateTime startTime = subTask.getStartTime();
+            var subTaskStartTime = subTask.getStartTime();
 
-            if (startTime != null && startTime.isBefore(localDateTime))
-                localDateTime = startTime;
+            if (subTaskStartTime.isPresent() && epicStartTime.isEmpty())
+                epicStartTime = subTaskStartTime;
+            else if (subTaskStartTime.isPresent() && epicStartTime.filter(subTaskStartTime.get()::isBefore).isPresent())
+                epicStartTime = subTaskStartTime;
         }
 
         setDuration(duration);
+        setStartTime(epicStartTime);
 
-        if (localDateTime.isBefore(LocalDateTime.MAX)) {
-            setStartTime(localDateTime);
-            endTime = localDateTime.plus(duration);
-        }
-        else {
-            setStartTime(null);
-            endTime = null;
-        }
+        Duration d = duration;
+        this.endTime = epicStartTime.map(i -> i.plus(d));
 
     }
 
-    public LocalDateTime getEndTime(){
+    public Optional<LocalDateTime> getEndTime(){
         calcTaskDuration();
         return endTime;
     }
