@@ -1,4 +1,4 @@
-package tests.Api;
+package api;
 
 import httpserver.HttpTaskServer;
 import com.google.gson.Gson;

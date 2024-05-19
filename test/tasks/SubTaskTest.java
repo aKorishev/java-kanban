@@ -1,4 +1,4 @@
-package tests.tasks;
+package tasks;
 
 import enums.TaskType;
 import org.junit.jupiter.api.Assertions;

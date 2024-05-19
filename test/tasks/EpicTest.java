@@ -1,4 +1,4 @@
-package tests.tasks;
+package tasks;
 
 import enums.TaskStatus;
 import enums.TaskType;

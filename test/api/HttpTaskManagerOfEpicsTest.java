@@ -1,4 +1,4 @@
-package tests.Api;
+package api;
 
 import httpserver.HttpTaskServer;
 import com.google.gson.Gson;
@@ -12,6 +12,7 @@ import taskmanagers.TaskManager;
 import taskmanagers.TaskManagerFactory;
 import tasks.Epic;
 import tasks.SubTask;
+import tools.json.EpicTypeAdapter;
 import tools.json.SubTaskTypeAdapter;
 
 import java.io.IOException;
@@ -24,9 +25,10 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class HttpTaskManagerOfSubTasksTest {
+public class HttpTaskManagerOfEpicsTest {
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(SubTask.class, new SubTaskTypeAdapter())
+            .registerTypeAdapter(Epic.class, new EpicTypeAdapter())
             .create();
 
     private TaskManager taskManager;
@@ -46,75 +48,58 @@ public class HttpTaskManagerOfSubTasksTest {
 
     @Test
     void getList() throws IOException, InterruptedException, URISyntaxException {
-        var epic = new Epic("","");
-        taskManager.createEpic(epic);
-
-        var epicId = epic.getTaskId();
-
-        taskManager.createSubTask(new SubTask("", "", epicId));
-        taskManager.createSubTask(new SubTask("", "", epicId));
+        taskManager.createEpic(new Epic("",""));
+        taskManager.createEpic(new Epic("",""));
+        taskManager.createEpic(new Epic("",""));
 
         var response = getResponse(HttpRequest.newBuilder()
                 .GET()
-                .uri(new URI("http://127.0.0.1:8080/subtasks")));
+                .uri(new URI("http://127.0.0.1:8080/epics")));
 
         Assertions.assertEquals(200, response.statusCode(), response.body());
 
         var body = response.body();
 
-        List<SubTask> tasks = gson.fromJson(body, new TypeToken<List<SubTask>>() {}.getType());
+        List<Epic> tasks = gson.fromJson(body, new TypeToken<List<Epic>>() {}.getType());
 
-        Assertions.assertEquals(2, tasks.size());
+        Assertions.assertEquals(3, tasks.size());
     }
 
     @Test
     void noFoundTask() throws IOException, InterruptedException, URISyntaxException {
-        var epic = new Epic("","");
-        taskManager.createEpic(epic);
-
-        var epicId = epic.getTaskId();
-
-        taskManager.createSubTask(new SubTask("", "", epicId));
-        taskManager.createSubTask(new SubTask("", "", epicId));
+        taskManager.createEpic(new Epic("",""));
+        taskManager.createEpic(new Epic("",""));
+        taskManager.createEpic(new Epic("",""));
 
         var response = getResponse(HttpRequest.newBuilder()
                 .GET()
-                .uri(new URI("http://127.0.0.1:8080/subtasks/10")));
+                .uri(new URI("http://127.0.0.1:8080/epics/10")));
 
         Assertions.assertEquals(404, response.statusCode(), response.body());
     }
 
     @Test
     void getTask() throws IOException, InterruptedException, URISyntaxException {
+        taskManager.createEpic(new Epic("",""));
+        taskManager.createEpic(new Epic("",""));
         var epic = new Epic("","");
         taskManager.createEpic(epic);
+        taskManager.createEpic(new Epic("",""));
 
-        var epicId = epic.getTaskId();
 
-        taskManager.createSubTask(new SubTask("", "", epicId));
-        taskManager.createSubTask(new SubTask("", "", epicId));
-
-        epic = new Epic("","");
-        taskManager.createEpic(epic);
-
-        epicId = epic.getTaskId();
-
-        var subtask = new SubTask("subTask", "desc", epicId);
-
-        taskManager.createSubTask(new SubTask("", "", epicId));
-        taskManager.createSubTask(subtask);
-        taskManager.createSubTask(new SubTask("", "", epicId));
+        taskManager.createSubTask(new SubTask("", "", epic.getTaskId()));
+        taskManager.createSubTask(new SubTask("", "", epic.getTaskId()));
 
 
         var response = getResponse(HttpRequest.newBuilder()
                 .GET()
-                .uri(new URI("http://127.0.0.1:8080/subtasks/" + subtask.getTaskId())));
+                .uri(new URI("http://127.0.0.1:8080/epics/" + epic.getTaskId())));
 
         Assertions.assertEquals(200, response.statusCode(), response.body());
 
-        var actualTask = gson.fromJson(response.body(), SubTask.class);
+        var actualTask = gson.fromJson(response.body(), Epic.class);
 
-        Assertions.assertEquals(subtask, actualTask);
+        Assertions.assertEquals(epic, actualTask);
     }
 
     @Test
@@ -122,46 +107,20 @@ public class HttpTaskManagerOfSubTasksTest {
         var epic = new Epic("","");
         taskManager.createEpic(epic);
 
-        var subtask = new SubTask("subTask", "desc", epic.getTaskId());
-        subtask.setStartTime(LocalDateTime.of(2024,12,12,5,5, 34));
-        subtask.setDuration(Duration.ofHours(1));
-        subtask.doProgress();
+        epic = new Epic("epicNew","");
 
         var response = getResponse(HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(subtask)))
-                .uri(new URI("http://127.0.0.1:8080/subtasks")));
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic)))
+                .uri(new URI("http://127.0.0.1:8080/epics")));
 
         Assertions.assertEquals(201, response.statusCode(), response.body());
 
-        Assertions.assertEquals(1, taskManager.getSubTasks().size());
+        Assertions.assertEquals(2, taskManager.getEpics().size());
 
-        var newTask = taskManager.getSubTasks().getFirst();
-        subtask.setTaskId(newTask.getTaskId());
+        var newTask = taskManager.getEpics().get(1);
+        epic.setTaskId(newTask.getTaskId());
 
-        Assertions.assertEquals(subtask, newTask);
-    }
-
-    @Test
-    void createCrossedTask() throws IOException, InterruptedException, URISyntaxException {
-        var epic = new Epic("","");
-        taskManager.createEpic(epic);
-
-        var subTask = new SubTask("task1","desc", epic.getTaskId());
-        subTask.setStartTime(LocalDateTime.of(2024,12,12,5,5));
-        subTask.setDuration(Duration.ofHours(1));
-        taskManager.createSubTask(subTask);
-
-        subTask = new SubTask("task2","desc", epic.getTaskId());
-        subTask.setStartTime(LocalDateTime.of(2024,12,12,5,55));
-        subTask.setDuration(Duration.ofHours(1));
-
-        var response = getResponse(HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(subTask)))
-                .uri(new URI("http://127.0.0.1:8080/subtasks")));
-
-        Assertions.assertEquals(406, response.statusCode(), response.body());
-
-        Assertions.assertEquals(1, taskManager.getSubTasks().size());
+        Assertions.assertEquals(epic, newTask);
     }
 
     @Test
@@ -171,29 +130,15 @@ public class HttpTaskManagerOfSubTasksTest {
         if (res.isPresent())
             throw res.get();
 
-        var subTask = new SubTask("task1","desc", epic.getTaskId());
-        subTask.setStartTime(LocalDateTime.of(2024,12,12,5,5));
-        subTask.setDuration(Duration.ofHours(1));
-        res = taskManager.createSubTask(subTask);
-        if (res.isPresent())
-            throw res.get();
-
-        subTask = new SubTask("task2","desc", epic.getTaskId());
-        subTask.setStartTime(LocalDateTime.of(2024,12,12,6,55));
-        subTask.setDuration(Duration.ofHours(1));
-        res = taskManager.createSubTask(subTask);
-        if (res.isPresent())
-            throw res.get();
-
-        subTask.setName("updated");
+        epic.setName("updated");
 
         var response = getResponse(HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(subTask)))
-                .uri(new URI("http://127.0.0.1:8080/subtasks/" + subTask.getTaskId())));
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic)))
+                .uri(new URI("http://127.0.0.1:8080/epics/" + epic.getTaskId())));
 
         Assertions.assertEquals(201, response.statusCode(), response.body());
 
-        var actualTask = taskManager.getSubTask(subTask.getTaskId());
+        var actualTask = taskManager.getEpic(epic.getTaskId());
         if (actualTask.isEmpty())
             Assertions.fail("не нашел task");
 
@@ -201,46 +146,8 @@ public class HttpTaskManagerOfSubTasksTest {
     }
 
     @Test
-    void updateCrossTask() throws Exception {
-        var epic = new Epic("","");
-        var res = taskManager.createEpic(epic);
-        if (res.isPresent())
-            throw res.get();
-
-        var subTask = new SubTask("task1","desc", epic.getTaskId());
-        subTask.setStartTime(LocalDateTime.of(2024,12,12,5,5));
-        subTask.setDuration(Duration.ofHours(1));
-        res = taskManager.createSubTask(subTask);
-        if (res.isPresent())
-            throw res.get();
-
-        subTask = new SubTask("task2","desc", epic.getTaskId());
-        subTask.setStartTime(LocalDateTime.of(2024,12,12,6,55));
-        subTask.setDuration(Duration.ofHours(1));
-        res = taskManager.createSubTask(subTask);
-        if (res.isPresent())
-            throw res.get();
-
-        var response = getResponse(HttpRequest.newBuilder()
-                .GET()
-                .uri(new URI("http://127.0.0.1:8080/subtasks/" + subTask.getTaskId())));
-
-        var updatedTask = gson.fromJson(response.body(), SubTask.class);
-        updatedTask.setStartTime(LocalDateTime.of(2024,12,12,5,55));
-
-        response = getResponse(HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(updatedTask)))
-                .uri(new URI("http://127.0.0.1:8080/subtasks/" + updatedTask.getTaskId())));
-
-        Assertions.assertEquals(406, response.statusCode(), response.body());
-
-        Assertions.assertNotEquals(subTask, updatedTask);
-    }
-
-
-    @Test
     void getPrioritizedList() throws Exception {
-        var epic = new Epic("","");
+        var epic = new Epic("1","");
         var res = taskManager.createEpic(epic);
         if (res.isPresent())
             throw res.get();
@@ -252,18 +159,21 @@ public class HttpTaskManagerOfSubTasksTest {
         if (res.isPresent())
             throw res.get();
 
-        subTask = new SubTask("task2","desc", epic.getTaskId());
-        subTask.setStartTime(LocalDateTime.of(2024,12,12,6,55));
-        subTask.setDuration(Duration.ofMinutes(1));
-        res = taskManager.createSubTask(subTask);
-        if (res.isPresent())
-            throw res.get();
-
-        epic = new Epic("","");
+        epic = new Epic("2","");
         res = taskManager.createEpic(epic);
         if (res.isPresent())
             throw res.get();
+        subTask = new SubTask("task2","desc", epic.getTaskId());
+        subTask.setStartTime(LocalDateTime.of(2024,12,12,6,55));
+        subTask.setDuration(Duration.ofMinutes(1));
+        res = taskManager.createSubTask(subTask);
+        if (res.isPresent())
+            throw res.get();
 
+        epic = new Epic("3","");
+        res = taskManager.createEpic(epic);
+        if (res.isPresent())
+            throw res.get();
         subTask = new SubTask("task1","desc", epic.getTaskId());
         subTask.setStartTime(LocalDateTime.of(2024,12,12,3,5));
         subTask.setDuration(Duration.ofMinutes(1));
@@ -271,6 +181,10 @@ public class HttpTaskManagerOfSubTasksTest {
         if (res.isPresent())
             throw res.get();
 
+        epic = new Epic("4","");
+        res = taskManager.createEpic(epic);
+        if (res.isPresent())
+            throw res.get();
         subTask = new SubTask("task2","desc", epic.getTaskId());
         subTask.setStartTime(LocalDateTime.of(2024,12,12,2,55));
         subTask.setDuration(Duration.ofMinutes(1));
@@ -280,24 +194,23 @@ public class HttpTaskManagerOfSubTasksTest {
 
         var response = getResponse(HttpRequest.newBuilder()
                 .GET()
-                .uri(new URI("http://127.0.0.1:8080/subtasks/prioritized")));
+                .uri(new URI("http://127.0.0.1:8080/epics/prioritized")));
 
         Assertions.assertEquals(200, response.statusCode());
 
-        List<SubTask> prioritizedList = gson.fromJson(response.body(), new TypeToken<List<SubTask>>() {}.getType());
-        var hours = new Integer[] {2,3,5,6};
+        List<Epic> prioritizedList = gson.fromJson(response.body(), new TypeToken<List<Epic>>() {}.getType());
+        var names = new String[] {"4","3","1","2"};
         var index = 0;
 
         for (var item : prioritizedList) {
-            var expectedVal = hours[index];
-            Assertions.assertTrue(item.getStartTime().filter(i -> i.getHour() == expectedVal).isPresent());
+            Assertions.assertEquals(names[index], item.getName());
             index++;
         }
     }
 
     @Test
     void getPrioritizedDescList() throws Exception {
-        var epic = new Epic("","");
+        var epic = new Epic("1","");
         var res = taskManager.createEpic(epic);
         if (res.isPresent())
             throw res.get();
@@ -309,6 +222,10 @@ public class HttpTaskManagerOfSubTasksTest {
         if (res.isPresent())
             throw res.get();
 
+        epic = new Epic("2","");
+        res = taskManager.createEpic(epic);
+        if (res.isPresent())
+            throw res.get();
         subTask = new SubTask("task2","desc", epic.getTaskId());
         subTask.setStartTime(LocalDateTime.of(2024,12,12,6,55));
         subTask.setDuration(Duration.ofMinutes(1));
@@ -316,11 +233,10 @@ public class HttpTaskManagerOfSubTasksTest {
         if (res.isPresent())
             throw res.get();
 
-        epic = new Epic("","");
+        epic = new Epic("3","");
         res = taskManager.createEpic(epic);
         if (res.isPresent())
             throw res.get();
-
         subTask = new SubTask("task1","desc", epic.getTaskId());
         subTask.setStartTime(LocalDateTime.of(2024,12,12,3,5));
         subTask.setDuration(Duration.ofMinutes(1));
@@ -328,6 +244,10 @@ public class HttpTaskManagerOfSubTasksTest {
         if (res.isPresent())
             throw res.get();
 
+        epic = new Epic("4","");
+        res = taskManager.createEpic(epic);
+        if (res.isPresent())
+            throw res.get();
         subTask = new SubTask("task2","desc", epic.getTaskId());
         subTask.setStartTime(LocalDateTime.of(2024,12,12,2,55));
         subTask.setDuration(Duration.ofMinutes(1));
@@ -337,24 +257,23 @@ public class HttpTaskManagerOfSubTasksTest {
 
         var response = getResponse(HttpRequest.newBuilder()
                 .GET()
-                .uri(new URI("http://127.0.0.1:8080/subtasks/prioritized/-1")));
+                .uri(new URI("http://127.0.0.1:8080/epics/prioritized/-1")));
 
-        Assertions.assertEquals(200, response.statusCode(), response.body());
+        Assertions.assertEquals(200, response.statusCode());
 
-        List<SubTask> prioritizedList = gson.fromJson(response.body(), new TypeToken<List<SubTask>>() {}.getType());
-        var hours = new Integer[] {6,5,3,2};
+        List<Epic> prioritizedList = gson.fromJson(response.body(), new TypeToken<List<Epic>>() {}.getType());
+        var names = new String[] {"2","1","3","4"};
         var index = 0;
 
         for (var item : prioritizedList) {
-            var expectedVal = hours[index];
-            Assertions.assertTrue(item.getStartTime().filter(i -> i.getHour() == expectedVal).isPresent());
+            Assertions.assertEquals(names[index], item.getName());
             index++;
         }
     }
 
     @Test
     void badRequest() throws Exception {
-        var epic = new Epic("","");
+        var epic = new Epic("1","");
         var res = taskManager.createEpic(epic);
         if (res.isPresent())
             throw res.get();
@@ -366,6 +285,10 @@ public class HttpTaskManagerOfSubTasksTest {
         if (res.isPresent())
             throw res.get();
 
+        epic = new Epic("2","");
+        res = taskManager.createEpic(epic);
+        if (res.isPresent())
+            throw res.get();
         subTask = new SubTask("task2","desc", epic.getTaskId());
         subTask.setStartTime(LocalDateTime.of(2024,12,12,6,55));
         subTask.setDuration(Duration.ofMinutes(1));
@@ -373,11 +296,10 @@ public class HttpTaskManagerOfSubTasksTest {
         if (res.isPresent())
             throw res.get();
 
-        epic = new Epic("","");
+        epic = new Epic("3","");
         res = taskManager.createEpic(epic);
         if (res.isPresent())
             throw res.get();
-
         subTask = new SubTask("task1","desc", epic.getTaskId());
         subTask.setStartTime(LocalDateTime.of(2024,12,12,3,5));
         subTask.setDuration(Duration.ofMinutes(1));
@@ -385,6 +307,10 @@ public class HttpTaskManagerOfSubTasksTest {
         if (res.isPresent())
             throw res.get();
 
+        epic = new Epic("4","");
+        res = taskManager.createEpic(epic);
+        if (res.isPresent())
+            throw res.get();
         subTask = new SubTask("task2","desc", epic.getTaskId());
         subTask.setStartTime(LocalDateTime.of(2024,12,12,2,55));
         subTask.setDuration(Duration.ofMinutes(1));
@@ -394,7 +320,7 @@ public class HttpTaskManagerOfSubTasksTest {
 
         var response = getResponse(HttpRequest.newBuilder()
                 .GET()
-                .uri(new URI("http://127.0.0.1:8080/subtasks/bad")));
+                .uri(new URI("http://127.0.0.1:8080/epics/bad")));
 
         Assertions.assertEquals(500, response.statusCode(), response.body());
     }
