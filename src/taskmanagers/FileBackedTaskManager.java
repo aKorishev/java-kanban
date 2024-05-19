@@ -114,7 +114,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
 
-    public void reload(){
+    public void reload() {
         tasks.clear();
         epics.clear();
         subTasks.clear();
@@ -132,8 +132,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
             jsonReader.beginObject();
 
-            while(jsonReader.hasNext()){
-                switch (jsonReader.nextName()){
+            while (jsonReader.hasNext()) {
+                switch (jsonReader.nextName()) {
                     case "tasks" -> tasks = gson.fromJson(jsonReader, new TypeToken<List<Task>>() {}.getType());
                     case "epics" -> epics = gson.fromJson(jsonReader, new TypeToken<List<Epic>>() {}.getType());
                 }
@@ -144,9 +144,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             //Todo здесь совершил ошибку, тем что history держу в отдельном объекте. Сейчас не критично, но нужно объединить taskManager и history в одном объекте и восстанавливать историю из файла
             //var historyList = taskManager.getHistory();
 
-            for(var task : tasks)
+            for (var task : tasks)
                 this.tasks.put(task);
-            for(var epic : epics)
+            for (var epic : epics)
                 this.epics.put(epic);
         } catch (Exception ex) {
             throw new ManagerLoadException(ex.getMessage(), ex);

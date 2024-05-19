@@ -1,4 +1,4 @@
-package HttpServer.HttpHandlers;
+package httpserver.httphandlers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -46,8 +46,8 @@ public abstract class BaseHandler<T extends Task> implements HttpHandler {
         };
 
         var response = initResponse.get();
-        var code = response.getValue1();
-        var body = response.map2(String::getBytes).getValue2();
+        var code = response.value1();
+        var body = response.map2(String::getBytes).value2();
 
         // устанавливаем код ответа и отправляем его вместе с заголовками по умолчанию
         exchange.sendResponseHeaders(code, body.length);
@@ -57,8 +57,9 @@ public abstract class BaseHandler<T extends Task> implements HttpHandler {
             os.write(body);
         }
     }
-    protected Optional<Integer> parseInt(String value){
-        try{
+
+    protected Optional<Integer> parseInt(String value) {
+        try {
             var i = Integer.parseInt(value);
 
             return Optional.of(i);
@@ -67,17 +68,17 @@ public abstract class BaseHandler<T extends Task> implements HttpHandler {
         }
     }
 
-    protected <V> Pair<Integer, String> getSuccessGettingList(List<V> items){
+    protected <V> Pair<Integer, String> getSuccessGettingList(List<V> items) {
         var json = gson.toJson(items);
         return new Pair<>(200, json);
     }
 
-    protected <V> Pair<Integer, String> getSuccessGettingItem(V item){
+    protected <V> Pair<Integer, String> getSuccessGettingItem(V item) {
         var json = gson.toJson(item);
         return new Pair<>(200, json);
     }
 
-    protected Pair<Integer, String> updateElement(Function<T, Optional<Exception>> function, T task, String valueOfIndex){
+    protected Pair<Integer, String> updateElement(Function<T, Optional<Exception>> function, T task, String valueOfIndex) {
         return parseInt(valueOfIndex)
                 .map(i -> function.apply(task)
                         .map(e -> new Pair<>(406, e.getMessage()))
@@ -85,17 +86,17 @@ public abstract class BaseHandler<T extends Task> implements HttpHandler {
                 .orElse(new Pair<>(500, "Ожидался числовой индекс задачи"));
     }
 
-    protected Pair<Integer, String> creteElement(Function<T, Optional<Exception>> function, T task){
+    protected Pair<Integer, String> creteElement(Function<T, Optional<Exception>> function, T task) {
         return function.apply(task)
                 .map(ex -> new Pair<>(406, ex.getMessage()))
-                .orElse( new Pair<>(201, ""));
+                .orElse(new Pair<>(201, ""));
     }
 
-    protected Pair<Integer, String> deleteElement(String[] commands, Consumer<Integer> consumer){
-        if (commands.length == 3){
+    protected Pair<Integer, String> deleteElement(String[] commands, Consumer<Integer> consumer) {
+        if (commands.length == 3) {
             return parseInt(commands[2])
-                    .map(i ->{
-                        if (taskManager.containsIndex(i)){
+                    .map(i -> {
+                        if (taskManager.containsIndex(i)) {
                             consumer.accept(i);
                             return new Pair<>(201, "");
                         } else
@@ -108,7 +109,9 @@ public abstract class BaseHandler<T extends Task> implements HttpHandler {
     }
 
     protected abstract Pair<Integer, String> getData(String[] commands);
+
     protected abstract Pair<Integer, String> actionPost(Supplier<Option<T, Exception>> readBody, String[] commands); //Чтобы не передавать контекст exchange, сделал каррирование readBody
+
     protected abstract Pair<Integer, String> actionDelete(String[] commands);
 
     protected abstract Class<T> getClassTask();
@@ -116,7 +119,7 @@ public abstract class BaseHandler<T extends Task> implements HttpHandler {
     protected abstract GsonBuilder initAdapters(GsonBuilder gsonBuilder);
 
 
-    private Option<T, Exception> readBody(HttpExchange exchange){
+    private Option<T, Exception> readBody(HttpExchange exchange) {
         try {
             var inputStream = exchange.getRequestBody();
             var body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
@@ -126,15 +129,15 @@ public abstract class BaseHandler<T extends Task> implements HttpHandler {
 
             var task = gson.fromJson(body, getClassTask());
             return Option.initValue1(task);
-        } catch (Exception ex){
+        } catch (Exception ex) {
             return Option.initValue2(ex);
         }
     }
 
-    private Pair<Integer, String> actionGet(String[] commands){
+    private Pair<Integer, String> actionGet(String[] commands) {
         try {
             return getData(commands);
-        } catch (Exception ex){
+        } catch (Exception ex) {
             return new Pair<>(500, ex.getMessage());
         }
     }

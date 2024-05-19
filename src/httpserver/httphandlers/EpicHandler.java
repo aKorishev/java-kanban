@@ -1,4 +1,4 @@
-package HttpServer.HttpHandlers;
+package httpserver.httphandlers;
 
 import com.google.gson.GsonBuilder;
 import taskmanagers.TaskManager;
@@ -74,6 +74,7 @@ public class EpicHandler extends BaseHandler<Epic> {
     protected Class<Epic> getClassTask() {
         return Epic.class;
     }
+
     @Override
     protected GsonBuilder initAdapters(GsonBuilder gsonBuilder) {
         return gsonBuilder

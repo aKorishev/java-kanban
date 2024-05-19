@@ -1,4 +1,4 @@
-package HttpServer.HttpHandlers;
+package httpserver.httphandlers;
 
 import com.google.gson.GsonBuilder;
 import taskmanagers.TaskManager;
@@ -67,6 +67,7 @@ public class SubTaskHandler extends BaseHandler<SubTask> {
     protected Class<SubTask> getClassTask() {
         return SubTask.class;
     }
+
     @Override
     protected GsonBuilder initAdapters(GsonBuilder gsonBuilder) {
         return gsonBuilder

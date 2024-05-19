@@ -1,6 +1,6 @@
 package tests.Api;
 
-import HttpServer.HttpTaskServer;
+import httpserver.HttpTaskServer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -12,9 +12,7 @@ import taskmanagers.TaskManager;
 import taskmanagers.TaskManagerFactory;
 import tasks.Epic;
 import tasks.SubTask;
-import tasks.Task;
 import tools.json.SubTaskTypeAdapter;
-import tools.json.TaskTypeAdapter;
 
 import java.io.IOException;
 import java.net.URI;
@@ -42,7 +40,7 @@ public class HttpTaskManagerOfSubTasksTest {
     }
 
     @AfterEach
-    void stopServer(){
+    void stopServer() {
         taskServer.stop();
     }
 
@@ -68,8 +66,9 @@ public class HttpTaskManagerOfSubTasksTest {
 
         Assertions.assertEquals(2, tasks.size());
     }
+
     @Test
-    void NoFoundTask() throws IOException, InterruptedException, URISyntaxException {
+    void noFoundTask() throws IOException, InterruptedException, URISyntaxException {
         var epic = new Epic("","");
         taskManager.createEpic(epic);
 
@@ -84,6 +83,7 @@ public class HttpTaskManagerOfSubTasksTest {
 
         Assertions.assertEquals(404, response.statusCode(), response.body());
     }
+
     @Test
     void getTask() throws IOException, InterruptedException, URISyntaxException {
         var epic = new Epic("","");
@@ -116,6 +116,7 @@ public class HttpTaskManagerOfSubTasksTest {
 
         Assertions.assertEquals(subtask, actualTask);
     }
+
     @Test
     void createTask() throws IOException, InterruptedException, URISyntaxException {
         var epic = new Epic("","");
@@ -162,6 +163,7 @@ public class HttpTaskManagerOfSubTasksTest {
 
         Assertions.assertEquals(1, taskManager.getSubTasks().size());
     }
+
     @Test
     void updateTask() throws Exception {
         var epic = new Epic("","");
@@ -195,8 +197,9 @@ public class HttpTaskManagerOfSubTasksTest {
         if (actualTask.isEmpty())
             Assertions.fail("не нашел task");
 
-        Assertions.assertTrue(actualTask.get().getName().equals("updated"));
+        Assertions.assertEquals("updated", actualTask.get().getName());
     }
+
     @Test
     void updateCrossTask() throws Exception {
         var epic = new Epic("","");
@@ -285,11 +288,13 @@ public class HttpTaskManagerOfSubTasksTest {
         var hours = new Integer[] {2,3,5,6};
         var index = 0;
 
-        for(var item : prioritizedList){
-            Assertions.assertEquals(hours[index], item.getStartTime().get().getHour());
+        for (var item : prioritizedList) {
+            var expectedVal = hours[index];
+            Assertions.assertTrue(item.getStartTime().filter(i -> i.getHour() == expectedVal).isPresent());
             index++;
         }
     }
+
     @Test
     void getPrioritizedDescList() throws Exception {
         var epic = new Epic("","");
@@ -340,8 +345,9 @@ public class HttpTaskManagerOfSubTasksTest {
         var hours = new Integer[] {6,5,3,2};
         var index = 0;
 
-        for(var item : prioritizedList){
-            Assertions.assertEquals(hours[index], item.getStartTime().get().getHour());
+        for (var item : prioritizedList) {
+            var expectedVal = hours[index];
+            Assertions.assertTrue(item.getStartTime().filter(i -> i.getHour() == expectedVal).isPresent());
             index++;
         }
     }
@@ -398,7 +404,7 @@ public class HttpTaskManagerOfSubTasksTest {
 
         return HttpClient.newHttpClient().send(
                 requestBuilder
-                        .build()
-                , handler);
+                        .build(),
+                handler);
     }
 }

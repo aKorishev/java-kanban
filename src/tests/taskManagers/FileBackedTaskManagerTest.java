@@ -8,10 +8,7 @@ import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -68,7 +65,7 @@ public class FileBackedTaskManagerTest {
 
             Map<Integer, Task> loadedTasks = loadedTaskManager.getTasks().stream().collect(Collectors.toMap(Task::getTaskId, t -> t));
 
-            for(Task task : taskManager.getTasks()){
+            for (Task task : taskManager.getTasks()) {
                 Task loadedTask = loadedTasks.get(task.getTaskId());
                 Assertions.assertNotNull(loadedTask, "Не найдена Task: " + task);
 
@@ -77,19 +74,18 @@ public class FileBackedTaskManagerTest {
 
             Map<Integer, Epic> loadedEpics = loadedTaskManager.getEpics().stream().collect(Collectors.toMap(Task::getTaskId, t -> t));
 
-            for(Epic oldEpic : taskManager.getEpics()){
+            for (Epic oldEpic : taskManager.getEpics()) {
                 int epicId = oldEpic.getTaskId();
                 Epic loadedEpic = loadedEpics.get(epicId);
                 Assertions.assertNotNull(loadedEpic, "Не найдена Epic: " + oldEpic);
                 Assertions.assertTrue(oldEpic.equals(loadedEpic), "Различаются Epics. \nExpected: " + oldEpic + "\nActual: " + loadedTasks);
 
-                if (epicId == controlTimeEpicId){
+                if (epicId == controlTimeEpicId) {
                     loadedEpic.calcTaskDuration();
                     Assertions.assertEquals(oldEpic.getEndTime(), loadedEpic.getEndTime());
                 }
             }
-        }
-        finally {
+        } finally {
             tempFile.delete();
         }
     }

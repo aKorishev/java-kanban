@@ -30,13 +30,13 @@ public class Main {
         System.out.println("\nВывод резульата №" + number);
 
         System.out.println("Tasks:");
-        for(Task task : taskManager.getTasks())
+        for (Task task : taskManager.getTasks())
             System.out.println("   " + task);
 
         System.out.println("Epics:");
-        for(Epic epic : taskManager.getEpics()) {
+        for (Epic epic : taskManager.getEpics()) {
             System.out.println("   " + epic);
-            for(SubTask subTask : epic.getSubTasks())
+            for (SubTask subTask : epic.getSubTasks())
                 System.out.println("      " + subTask);
         }
     }

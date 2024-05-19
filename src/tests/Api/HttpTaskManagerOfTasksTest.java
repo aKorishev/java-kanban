@@ -1,6 +1,6 @@
 package tests.Api;
 
-import HttpServer.HttpTaskServer;
+import httpserver.HttpTaskServer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -10,8 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import taskmanagers.TaskManager;
 import taskmanagers.TaskManagerFactory;
-import tasks.Epic;
-import tasks.SubTask;
 import tasks.Task;
 import tools.json.TaskTypeAdapter;
 
@@ -41,7 +39,7 @@ public class HttpTaskManagerOfTasksTest {
     }
 
     @AfterEach
-    void stopServer(){
+    void stopServer() {
         taskServer.stop();
     }
 
@@ -62,8 +60,9 @@ public class HttpTaskManagerOfTasksTest {
 
         Assertions.assertEquals(2, tasks.size());
     }
+
     @Test
-    void NoFoundTask() throws IOException, InterruptedException, URISyntaxException {
+    void noFoundTask() throws IOException, InterruptedException, URISyntaxException {
         taskManager.createTask(new Task("", ""));
         taskManager.createTask(new Task("", ""));
 
@@ -73,6 +72,7 @@ public class HttpTaskManagerOfTasksTest {
 
         Assertions.assertEquals(404, response.statusCode(), response.body());
     }
+
     @Test
     void getTask() throws IOException, InterruptedException, URISyntaxException {
         taskManager.createTask(new Task("", ""));
@@ -94,6 +94,7 @@ public class HttpTaskManagerOfTasksTest {
 
         Assertions.assertEquals(task, actualTask);
     }
+
     @Test
     void createTask() throws IOException, InterruptedException, URISyntaxException {
         var task = new Task("task1","desc");
@@ -134,6 +135,7 @@ public class HttpTaskManagerOfTasksTest {
 
         Assertions.assertEquals(1, taskManager.getTasks().size());
     }
+
     @Test
     void updateTask() throws IOException, InterruptedException, URISyntaxException {
         var task = new Task("task1","desc");
@@ -158,8 +160,9 @@ public class HttpTaskManagerOfTasksTest {
         if (actualTask.isEmpty())
             Assertions.fail("не нашел task");
 
-        Assertions.assertTrue(actualTask.get().getName().equals("updated"));
+        Assertions.assertEquals("updated", actualTask.get().getName());
     }
+
     @Test
     void updateCrossTask() throws IOException, InterruptedException, URISyntaxException {
         var task = new Task("task1","desc");
@@ -187,7 +190,6 @@ public class HttpTaskManagerOfTasksTest {
 
         Assertions.assertNotEquals(task, updatedTask);
     }
-
 
     @Test
     void getPrioritizedList() throws IOException, InterruptedException, URISyntaxException {
@@ -221,11 +223,13 @@ public class HttpTaskManagerOfTasksTest {
         var hours = new Integer[] {1,2,4,6};
         var index = 0;
 
-        for(var item : prioritizedList){
-            Assertions.assertEquals(hours[index], item.getStartTime().get().getHour());
+        for (var item : prioritizedList) {
+            var expectedVal = hours[index];
+            Assertions.assertTrue(item.getStartTime().filter(i -> i.getHour() == expectedVal).isPresent());
             index++;
         }
     }
+
     @Test
     void getPrioritizedDescList() throws IOException, InterruptedException, URISyntaxException {
         var task = new Task("task1","desc");
@@ -258,8 +262,9 @@ public class HttpTaskManagerOfTasksTest {
         var hours = new Integer[] {6,4,2,1};
         var index = 0;
 
-        for(var item : prioritizedList){
-            Assertions.assertEquals(hours[index], item.getStartTime().get().getHour());
+        for (var item : prioritizedList) {
+            var expectedVal = hours[index];
+            Assertions.assertTrue(item.getStartTime().filter(i -> i.getHour() == expectedVal).isPresent());
             index++;
         }
     }
@@ -294,50 +299,6 @@ public class HttpTaskManagerOfTasksTest {
     }
 
     @Test
-    void getEpicList() throws IOException, InterruptedException, URISyntaxException {
-        taskManager.createEpic(new Epic("", ""));
-        taskManager.createEpic(new Epic("", ""));
-        taskManager.createEpic(new Epic("", ""));
-
-        var response = getResponse(HttpRequest.newBuilder()
-                .GET()
-                .uri(new URI("http://127.0.0.1:8080/epics")));
-
-        Assertions.assertEquals(200, response.statusCode());
-
-        var body = response.body();
-
-        List<Epic> epics = gson.fromJson(body, new TypeToken<List<Epic>>() {}.getType());
-
-        Assertions.assertEquals(3, epics.size());
-    }
-
-    @Test
-    void getSubTaskList() throws IOException, InterruptedException, URISyntaxException {
-        var epic = new Epic("", "");
-        taskManager.createEpic(epic);
-
-        taskManager.createSubTask(new SubTask("","", epic.getTaskId()));
-        taskManager.createSubTask(new SubTask("","", epic.getTaskId()));
-
-        epic = new Epic("","");
-        taskManager.createEpic(epic);
-
-        taskManager.createSubTask(new SubTask("","", epic.getTaskId()));
-
-        var response = getResponse(HttpRequest.newBuilder()
-                .GET()
-                .uri(new URI("http://127.0.0.1:8080/subtasks")));
-
-        Assertions.assertEquals(200, response.statusCode());
-
-        var body = response.body();
-
-        List<SubTask> subTasks = gson.fromJson(body, new TypeToken<List<SubTask>>() {}.getType());
-
-        Assertions.assertEquals(3, subTasks.size());
-    }
-    @Test
     void getUnknownTitleResponse() throws IOException, InterruptedException, URISyntaxException {
         taskManager.createTask(new Task("", ""));
         taskManager.createTask(new Task("", ""));
@@ -354,7 +315,7 @@ public class HttpTaskManagerOfTasksTest {
 
         return HttpClient.newHttpClient().send(
                 requestBuilder
-                        .build()
-                , handler);
+                        .build(),
+                handler);
     }
 }

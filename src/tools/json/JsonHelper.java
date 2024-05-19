@@ -4,7 +4,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import enums.TaskStatus;
 import tasks.Task;
-import tools.Option;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -51,7 +50,8 @@ public class JsonHelper {
 
         return Optional.empty();
     }
-    public static <T extends Task> Optional<IOException> taskToJson(JsonWriter jsonWriter, T task){
+
+    public static <T extends Task> Optional<IOException> taskToJson(JsonWriter jsonWriter, T task) {
         return taskToJson(jsonWriter, task, Optional.empty());
     }
 

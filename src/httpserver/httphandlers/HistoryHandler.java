@@ -1,4 +1,4 @@
-package HttpServer.HttpHandlers;
+package httpserver.httphandlers;
 
 import com.google.gson.GsonBuilder;
 import taskmanagers.TaskManager;
@@ -10,20 +10,17 @@ import tools.json.TaskTypeAdapter;
 import java.util.function.Supplier;
 
 
-public class PrioritizedHandler extends BaseHandler<Task> {
+public class HistoryHandler extends BaseHandler<Task> {
 
-    public PrioritizedHandler(TaskManager taskManager) {
+    public HistoryHandler(TaskManager taskManager) {
         super(taskManager);
 
     }
 
     @Override
     protected Pair<Integer, String> getData(String[] commands) {
-        //:/prioritized
-        //:/prioritized/route
-        if (commands.length == 2) return getSuccessGettingList(taskManager.getPrioritizedEpics(1));
-
-        if (commands.length == 3) return getSuccessGettingList(taskManager.getPrioritizedEpics(parseInt(commands[2]).orElse(1)));
+        //:/history
+        if (commands.length == 2) return getSuccessGettingList(taskManager.getHistory());
 
         return new Pair<>(500,
                 String.join("\n", "Некорректный запрос",
@@ -48,6 +45,7 @@ public class PrioritizedHandler extends BaseHandler<Task> {
     protected Class<Task> getClassTask() {
         return Task.class;
     }
+
     @Override
     protected GsonBuilder initAdapters(GsonBuilder gsonBuilder) {
         return gsonBuilder

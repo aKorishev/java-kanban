@@ -2,12 +2,11 @@ package tests.tools;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import historyManagers.HistoryManager;
-import historyManagers.InMemoryHistoryManager;
+import historymanagers.HistoryManager;
+import historymanagers.InMemoryHistoryManager;
 import tasks.Task;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 class HistoryManagerTest {
@@ -28,6 +27,7 @@ class HistoryManagerTest {
 
         Assertions.assertEquals(2, taskHistoryManager.getHistory().size());
     }
+
     @Test
     void addDouble() {
         HistoryManager taskHistoryManager = new InMemoryHistoryManager();
@@ -46,7 +46,7 @@ class HistoryManagerTest {
         HistoryManager historyManager = new InMemoryHistoryManager();
 
         List<Integer> ints = List.of(0,1,2,3,4,5,6,7,8);
-        for(int i : ints){
+        for (int i : ints) {
             Task task = new Task("","");
             task.setTaskId(i);
             historyManager.add(task);
@@ -59,7 +59,7 @@ class HistoryManagerTest {
 
         List<Task> history = historyManager.getHistory();
 
-        for(int i = 0; i < ints.size(); i++)
+        for (int i = 0; i < ints.size(); i++)
             Assertions.assertEquals(ints.get(i), history.get(i).getTaskId());
     }
 
@@ -72,7 +72,7 @@ class HistoryManagerTest {
 
         List<Integer> ints = List.of(0,1,2,3,4,5,6,7,8);
 
-        for(int i : ints){
+        for (int i : ints) {
             Task task = new Task("","");
             task.setTaskId(i);
             historyManager.add(task);
@@ -82,9 +82,10 @@ class HistoryManagerTest {
 
         List<Task> history = new ArrayList<>(historyManager.getHistory(size));
 
-        for(int i = 0; i < ints.size(); i++)
+        for (int i = 0; i < ints.size(); i++)
             Assertions.assertEquals(ints.get(i), history.get(i).getTaskId());
     }
+
     @Test
     void getHistoryGorSizeWithDoubles() {
         HistoryManager historyManager = new InMemoryHistoryManager();
@@ -93,7 +94,7 @@ class HistoryManagerTest {
 
         List<Integer> ints = List.of(0,1,2,3,4,5,6,7,8,1,4);
 
-        for(int i : ints){
+        for (int i : ints) {
             Task task = new Task("","");
             task.setTaskId(i);
             historyManager.add(task);
@@ -103,14 +104,16 @@ class HistoryManagerTest {
 
         List<Task> history = new ArrayList<>(historyManager.getHistory(size));
 
-        for(int i = 0; i < ints.size(); i++)
+        for (int i = 0; i < ints.size(); i++)
             Assertions.assertEquals(ints.get(i), history.get(i).getTaskId());
-    }@Test
+    }
+
+    @Test
     void getHistory() {
         HistoryManager historyManager = new InMemoryHistoryManager();
 
         List<Integer> ints = List.of(0,1,2,3,4,5,6,7,8);
-        for(int i : ints){
+        for (int i : ints) {
             Task task = new Task("","");
             task.setTaskId(i);
             historyManager.add(task);
@@ -120,7 +123,7 @@ class HistoryManagerTest {
 
         List<Task> history = historyManager.getHistory();
 
-        for(int i = 0; i < ints.size(); i++)
+        for (int i = 0; i < ints.size(); i++)
             Assertions.assertEquals(ints.get(i), history.get(i).getTaskId());
     }
 }

@@ -1,21 +1,17 @@
 package tests.tasks;
 
-import enums.TaskType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import tasks.Epic;
 import tasks.SortedTaskMap;
-import tasks.SubTask;
 import tasks.Task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
 
 public class SortedTaskMapTest {
     @Test
-    void putTasks() throws Exception {
+    void putTasks() {
         SortedTaskMap<Task> tasks = new SortedTaskMap<>();
 
         Task task = new Task("","");
@@ -32,8 +28,9 @@ public class SortedTaskMapTest {
 
         Assertions.assertEquals(3, tasks.size());
     }
+
     @Test
-    void putDoubleTasks() throws Exception {
+    void putDoubleTasks() {
         SortedTaskMap<Task> tasks = new SortedTaskMap<>();
 
         Task task = new Task("","");
@@ -42,18 +39,17 @@ public class SortedTaskMapTest {
 
         task = new Task("","");
         task.setTaskId(1);
-        try {
-            tasks.put(task);
-        } catch (Exception ex) {
-            if (ex.getMessage().equals("Индекс уже есть в коллекции"))
-                return;
-            throw ex;
-        }
+
+        var res = tasks.put(task);
+
+        if (res.filter(ex -> ex.getMessage().equals("Индекс уже есть в коллекции")).isPresent())
+            return;
 
         Assertions.fail("Повторный индекс был добавлен");
     }
+
     @Test
-    void sortedTasks() throws Exception {
+    void sortedTasks() {
         SortedTaskMap<Task> tasks = new SortedTaskMap<>();
 
         Task task = new Task("","");
@@ -71,10 +67,11 @@ public class SortedTaskMapTest {
         task.setStartTime(LocalDateTime.of(2024,1,5,0,0));
         tasks.put(task);
 
-        Assertions.assertEquals(1, tasks.getSortedStartTimeSet(1).getFirst().getStartTime().get().getDayOfMonth());
+        Assertions.assertTrue(tasks.getSortedStartTimeSet(1).getFirst().getStartTime().map(LocalDateTime::getDayOfMonth).filter(i -> i == 1).isPresent());
     }
+
     @Test
-    void sortedTasksWhileOneTaskWithNullStartTime() throws Exception {
+    void sortedTasksWhileOneTaskWithNullStartTime() {
         SortedTaskMap<Task> tasks = new SortedTaskMap<>();
 
         Task task = new Task("","");
@@ -96,10 +93,11 @@ public class SortedTaskMapTest {
         task.setTaskId(4);
         tasks.put(task);
 
-        Assertions.assertEquals(1, tasks.getSortedStartTimeSet(1).getFirst().getStartTime().get().getDayOfMonth());
+        Assertions.assertTrue(tasks.getSortedStartTimeSet(1).getFirst().getStartTime().map(LocalDateTime::getDayOfMonth).filter(i -> i == 1).isPresent());
     }
+
     @Test
-    void sortedDescTasks() throws Exception {
+    void sortedDescTasks() {
         SortedTaskMap<Task> tasks = new SortedTaskMap<>();
 
         Task task = new Task("","");
@@ -117,10 +115,11 @@ public class SortedTaskMapTest {
         task.setStartTime(LocalDateTime.of(2024,1,5,0,0));
         tasks.put(task);
 
-        Assertions.assertEquals(5, tasks.getSortedStartTimeSet(-1).getFirst().getStartTime().get().getDayOfMonth());
+        Assertions.assertTrue(tasks.getSortedStartTimeSet(-1).getFirst().getStartTime().map(LocalDateTime::getDayOfMonth).filter(i -> i == 5).isPresent());
     }
+
     @Test
-    void sortedTasksAfterEditStartTime() throws Exception {
+    void sortedTasksAfterEditStartTime() {
         SortedTaskMap<Task> tasks = new SortedTaskMap<>();
 
         Task task = new Task("","");
@@ -142,10 +141,11 @@ public class SortedTaskMapTest {
 
         tasks.refreshSortedSets(task);
 
-        Assertions.assertEquals(1, tasks.getSortedStartTimeSet(1).getFirst().getStartTime().get().getDayOfMonth());
+        Assertions.assertTrue(tasks.getSortedStartTimeSet(1).getFirst().getStartTime().map(LocalDateTime::getDayOfMonth).filter(i -> i == 1).isPresent());
     }
+
     @Test
-    void sortedTasksAfterEditStartTimeAsNull() throws Exception {
+    void sortedTasksAfterEditStartTimeAsNull() {
         SortedTaskMap<Task> tasks = new SortedTaskMap<>();
 
         Task task = new Task("","");
@@ -169,10 +169,11 @@ public class SortedTaskMapTest {
 
         var firstTask = tasks.getSortedStartTimeSet(1).getFirst();
 
-        Assertions.assertEquals(3, firstTask.getStartTime().get().getDayOfMonth());
+        Assertions.assertTrue(firstTask.getStartTime().map(LocalDateTime::getDayOfMonth).filter(i -> i == 3).isPresent());
     }
+
     @Test
-    void sortedTasksAfterEditStartTimeAfterNull() throws Exception {
+    void sortedTasksAfterEditStartTimeAfterNull() {
         SortedTaskMap<Task> tasks = new SortedTaskMap<>();
 
         Task task = new Task("","");
@@ -192,10 +193,13 @@ public class SortedTaskMapTest {
         task.setStartTime(LocalDateTime.of(2024,1,1,0,0));
         tasks.refreshSortedSets(task);
 
-        Assertions.assertEquals(1, tasks.getSortedStartTimeSet(1).getFirst().getStartTime().get().getDayOfMonth());
+        task = tasks.getSortedStartTimeSet(1).getFirst();
+
+        Assertions.assertTrue(task.getStartTime().map(LocalDateTime::getDayOfMonth).filter(i -> i == 1).isPresent());
     }
+
     @Test
-    void sortedTasksWithStartTimeAsNull() throws Exception {
+    void sortedTasksWithStartTimeAsNull() {
         SortedTaskMap<Task> tasks = new SortedTaskMap<>();
 
         Task task = new Task("","");
@@ -214,8 +218,9 @@ public class SortedTaskMapTest {
 
         Assertions.assertEquals(2, tasks.getSortedStartTimeSet(1).size());
     }
+
     @Test
-    void notCrossingTasks() throws Exception {
+    void notCrossingTasks() {
         SortedTaskMap<Task> tasks = new SortedTaskMap<>();
 
         Task task = new Task("","");
@@ -238,8 +243,9 @@ public class SortedTaskMapTest {
 
         Assertions.assertFalse(tasks.getHasCross());
     }
+
     @Test
-    void hasCrossingTasks() throws Exception {
+    void hasCrossingTasks() {
         SortedTaskMap<Task> tasks = new SortedTaskMap<>();
 
         Task task = new Task("","");
@@ -253,12 +259,10 @@ public class SortedTaskMapTest {
         task.setStartTime(LocalDateTime.of(2024,1,2,0,0));
         task.setDuration(Duration.ofHours(10));
 
-        try {
-            tasks.put(task);
-        } catch (Exception e){
-            if (e.getMessage().equals("Новый элемент пересекается с другими"))
-                return;
-        }
+        var res = tasks.put(task);
+
+        if (res.filter(ex -> ex.getMessage().equals("Новый элемент пересекается с другими")).isPresent())
+            return;
 
         Assertions.fail("Пропущена валидация пересечний");
     }

@@ -3,7 +3,7 @@ package tasks;
 import enums.TaskStatus;
 import enums.TaskType;
 
-public class SubTask extends Task{
+public class SubTask extends Task {
     private int epicId;
 
     public SubTask(String name, String description, Integer epicId) {
@@ -21,14 +21,18 @@ public class SubTask extends Task{
     public int getEpicId() {
         return epicId;
     }
-    public void setEpicId(Integer epicId) { this.epicId = epicId; }
+
+    public void setEpicId(Integer epicId) {
+        this.epicId = epicId;
+    }
+
     @Override
-    public TaskType getTaskType(){
+    public TaskType getTaskType() {
         return TaskType.SUBTASK;
     }
 
     @Override
-    public boolean equals(Object other){
+    public boolean equals(Object other) {
         if (!super.equals(other)) return false;
 
         SubTask subTask = (SubTask) other;

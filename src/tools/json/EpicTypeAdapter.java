@@ -19,7 +19,7 @@ public class EpicTypeAdapter extends TypeAdapter<Epic> {
                 jsonReader,
                 epic,
                 Optional.of(title -> {
-                    if (title.equals("SubTasks")){
+                    if (title.equals("SubTasks")) {
                         try {
                             jsonReader.beginArray();
 
@@ -56,7 +56,7 @@ public class EpicTypeAdapter extends TypeAdapter<Epic> {
         var result = JsonHelper.taskToJson(jsonWriter, epic, Optional.of(() -> {
             var subTasks = epic.getSubTasks();
 
-            if (!subTasks.isEmpty()){
+            if (!subTasks.isEmpty()) {
                 try {
                     jsonWriter.name("SubTasks").beginArray();
 

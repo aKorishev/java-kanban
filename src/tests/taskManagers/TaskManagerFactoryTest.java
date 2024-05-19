@@ -10,18 +10,19 @@ class TaskManagerFactoryTest {
     @Test
     void getInMemoryTaskManagerNotNull() {
 
-        try{
+        try {
             Assertions.assertNotNull(TaskManagerFactory.initInMemoryTaskManager());
-        }catch (Exception ex){
+        } catch (Exception ex) {
             Assertions.fail();
         }
     }
+
     @Test
     void getFileBackedTaskManagerNotNull() {
 
-        try{
+        try {
             Assertions.assertNotNull(TaskManagerFactory.initFileBackedTaskManager(File.createTempFile("fileBacked", "test")));
-        }catch (Exception ex){
+        } catch (Exception ex) {
             Assertions.fail();
         }
     }

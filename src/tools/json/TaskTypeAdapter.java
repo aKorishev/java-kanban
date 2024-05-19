@@ -20,6 +20,7 @@ public class TaskTypeAdapter extends TypeAdapter<Task> {
 
         return task;
     }
+
     @Override
     public void write(JsonWriter jsonWriter, Task task) throws IOException {
         var result = JsonHelper.taskToJson(jsonWriter, task, Optional.empty());

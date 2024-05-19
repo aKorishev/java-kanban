@@ -1,4 +1,4 @@
-package historyManagers;
+package historymanagers;
 
 import tasks.Task;
 
@@ -12,12 +12,14 @@ public class InMemoryHistoryLinkedList  {
 
     private final Map<Integer, InMemoryHistoryNode> indexes = new HashMap<>();
 
-    public int size() { return indexes.size(); }
+    public int size() {
+        return indexes.size();
+    }
 
-    public void add (Task task){
+    public void add(Task task) {
         int taskId = task.getTaskId();
 
-        if (indexes.isEmpty()){
+        if (indexes.isEmpty()) {
             lastNode = new InMemoryHistoryNode(task);
             indexes.put(taskId, lastNode);
             return;
@@ -34,8 +36,7 @@ public class InMemoryHistoryLinkedList  {
             lastNode.setNextNode(node);
             node.setPrevNode(lastNode);
             lastNode = node;
-        }
-        else {
+        } else {
             InMemoryHistoryNode node = new InMemoryHistoryNode(task, lastNode, null);
 
             lastNode.setNextNode(node);
@@ -46,7 +47,7 @@ public class InMemoryHistoryLinkedList  {
         }
     }
 
-    public void remove(int taskId){
+    public void remove(int taskId) {
         InMemoryHistoryNode node = indexes.remove(taskId);
 
         if (node == null)
@@ -58,12 +59,12 @@ public class InMemoryHistoryLinkedList  {
             lastNode = node.getPrevNode();
     }
 
-    public List<Task> getHistory(){
+    public List<Task> getHistory() {
         List<Task> result = new java.util.ArrayList<>(List.of());
 
         InMemoryHistoryNode node = lastNode;
 
-        while (node != null){
+        while (node != null) {
             result.add(node.getTask());
             node = node.getPrevNode();
         }
@@ -71,12 +72,12 @@ public class InMemoryHistoryLinkedList  {
         return result;
     }
 
-    public List<Task> getHistory(int size){
+    public List<Task> getHistory(int size) {
         List<Task> result = new java.util.ArrayList<>(List.of());
 
         InMemoryHistoryNode node = lastNode;
 
-        while (node != null && result.size() < size){
+        while (node != null && result.size() < size) {
             result.add(node.getTask());
             node = node.getPrevNode();
         }
@@ -84,7 +85,7 @@ public class InMemoryHistoryLinkedList  {
         return result;
     }
 
-    private void cutNode(InMemoryHistoryNode node){
+    private void cutNode(InMemoryHistoryNode node) {
         InMemoryHistoryNode prevNode = node.getPrevNode();
         InMemoryHistoryNode nextNode = node.getNextNode();
 

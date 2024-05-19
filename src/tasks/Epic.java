@@ -12,14 +12,16 @@ import java.util.Optional;
 public class Epic extends Task {
     private final SortedTaskMap<SubTask> subTasks = new SortedTaskMap<>();
     private Optional<LocalDateTime> endTime = Optional.empty();
+
     public Epic(String name, String description) {
         super(name, description, TaskStatus.NEW);
     }
-    public List<SubTask> getSubTasks(){
+
+    public List<SubTask> getSubTasks() {
         return subTasks.getList();
     }
 
-    public void putSubTask(SubTask subTask){
+    public void putSubTask(SubTask subTask) {
         int taskId = subTask.getTaskId();
 
         if (subTasks.containsKey(taskId))
@@ -27,13 +29,14 @@ public class Epic extends Task {
 
         subTasks.put(taskId, subTask);
 
-        if (getTaskStatus() == TaskStatus.DONE){
+        if (getTaskStatus() == TaskStatus.DONE) {
             if (subTask.getTaskStatus() != TaskStatus.DONE)
                 doProgress();
         }
 
         subTask.getStartTime().ifPresent(i -> this.calcTaskDuration());
     }
+
     public void removeSubTask(int taskId) {
         subTasks.remove(taskId);
 
@@ -43,17 +46,20 @@ public class Epic extends Task {
 
         doDone();
     }
-    public void clearSubTasks(){
+
+    public void clearSubTasks() {
         subTasks.clear();
 
         if (getTaskStatus() == TaskStatus.IN_PROGRESS)
             doDone();
     }
 
-    public boolean containsSubTaskId(int subTaskId) { return subTasks.containsKey(subTaskId); }
+    public boolean containsSubTaskId(int subTaskId) {
+        return subTasks.containsKey(subTaskId);
+    }
 
     public void calcTaskDuration() {
-        if (subTasks.isEmpty()){
+        if (subTasks.isEmpty()) {
             setDuration(Duration.ZERO);
             setStartTime(Optional.empty());
 
@@ -63,7 +69,7 @@ public class Epic extends Task {
         Duration duration = Duration.ZERO;
         Optional<LocalDateTime> epicStartTime = Optional.empty();
 
-        for(SubTask subTask : subTasks.values()){
+        for (SubTask subTask : subTasks.values()) {
             duration = duration.plus(subTask.getDuration());
 
             var subTaskStartTime = subTask.getStartTime();
@@ -82,13 +88,13 @@ public class Epic extends Task {
 
     }
 
-    public Optional<LocalDateTime> getEndTime(){
+    public Optional<LocalDateTime> getEndTime() {
         calcTaskDuration();
         return endTime;
     }
 
     @Override
-    public TaskType getTaskType(){
+    public TaskType getTaskType() {
         return TaskType.EPIC;
     }
 
@@ -96,10 +102,12 @@ public class Epic extends Task {
     public void doDone() {
 
     }
+
     @Override
     public void doNew() {
 
     }
+
     @Override
     public void doProgress() {
 
@@ -108,7 +116,8 @@ public class Epic extends Task {
     @Override
     public TaskStatus getTaskStatus() {
         TaskStatus epicStatus = TaskStatus.NEW;
-        for(SubTask subTask : subTasks.values()){
+
+        for (SubTask subTask : subTasks.values()) {
             TaskStatus status = subTask.getTaskStatus();
 
             if (status == epicStatus)
@@ -123,14 +132,14 @@ public class Epic extends Task {
     }
 
     @Override
-    public boolean equals(Object other){
+    public boolean equals(Object other) {
         if (!super.equals(other)) return false;
 
         Epic epic = (Epic) other;
 
         if (subTasks.size() != epic.subTasks.size()) return false;
 
-        for(SubTask subTask : subTasks.values()){
+        for (SubTask subTask : subTasks.values()) {
             int subTaskId = subTask.getTaskId();
             if (!epic.subTasks.containsKey(subTaskId)) return false;
 

@@ -9,7 +9,6 @@ import tasks.Task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 class TaskTest {
 
@@ -114,7 +113,7 @@ class TaskTest {
         Task task2 = new Task("","");
         task2.setTaskId(1);
 
-        Assertions.assertTrue(task1.equals(task2));
+        Assertions.assertEquals(task1, task2);
     }
 
     @Test
@@ -125,15 +124,17 @@ class TaskTest {
         Task task2 = new Task("","");
         task2.setTaskId(3);
 
-        Assertions.assertFalse(task1.equals(task2));
+        Assertions.assertNotEquals(task1, task2);
     }
+
     @Test
     void testEqualsForNull() {
         Task task1 = new Task("", "");
         task1.setTaskId(1);
 
-        Assertions.assertFalse(task1.equals(null));
+        Assertions.assertNotEquals(null, task1);
     }
+
     @Test
     void testEqualsForOtherType() {
         Task task1 = new Task("", "");
@@ -142,7 +143,7 @@ class TaskTest {
         Epic epic = new Epic("", "");
         task1.setTaskId(1);
 
-        Assertions.assertFalse(task1.equals(epic));
+        Assertions.assertNotEquals(task1, epic);
     }
 
     @Test
@@ -159,28 +160,32 @@ class TaskTest {
 
         Assertions.assertEquals(TaskType.TASK, task.getTaskType());
     }
+
     @Test
-    void getNulDuration(){
+    void getNulDuration() {
         Task task = new Task("name", "description");
 
         Assertions.assertEquals(Duration.ZERO, task.getDuration());
     }
+
     @Test
-    void getDuration(){
+    void getDuration() {
         Task task = new Task("name", "description");
 
         task.setDuration(Duration.ofMinutes(10));
 
         Assertions.assertEquals(10, task.getDuration().toMinutes());
     }
+
     @Test
-    void getNulStartTime(){
+    void getNulStartTime() {
         Task task = new Task("name", "description");
 
         Assertions.assertTrue(task.getStartTime().isEmpty());
     }
+
     @Test
-    void getStartTime(){
+    void getStartTime() {
         Task task = new Task("name", "description");
 
         LocalDateTime time = LocalDateTime.now();
@@ -188,14 +193,16 @@ class TaskTest {
 
         Assertions.assertTrue(task.getStartTime().filter(time::equals).isPresent());
     }
+
     @Test
-    void getNullEndTime(){
+    void getNullEndTime() {
         Task task = new Task("name", "description");
 
         Assertions.assertTrue(task.getEndTime().isEmpty());
     }
+
     @Test
-    void getEndTimeWithOutDuration(){
+    void getEndTimeWithOutDuration() {
         Task task = new Task("name", "description");
 
         LocalDateTime time = LocalDateTime.now();
@@ -204,8 +211,9 @@ class TaskTest {
 
         Assertions.assertTrue(task.getEndTime().filter(time::equals).isPresent());
     }
+
     @Test
-    void getEndTime(){
+    void getEndTime() {
         Task task = new Task("name", "description");
 
         LocalDateTime time = LocalDateTime.now();

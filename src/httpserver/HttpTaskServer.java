@@ -1,6 +1,6 @@
-package HttpServer;
+package httpserver;
 
-import HttpServer.HttpHandlers.*;
+import httpserver.httphandlers.*;
 import com.sun.net.httpserver.HttpServer;
 import taskmanagers.TaskManager;
 import taskmanagers.TaskManagerFactory;
@@ -37,7 +37,7 @@ public class HttpTaskServer {
         httpServer.start(); // запускаем сервер
     }
 
-    public void stop(){
+    public void stop() {
         httpServer.stop(1);
     }
 }
