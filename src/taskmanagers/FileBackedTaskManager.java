@@ -1,26 +1,35 @@
 package taskmanagers;
 
-import enums.TaskStatus;
-import enums.TaskType;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
 import tools.ManagerLoadException;
 import tools.ManagerSaveException;
+import tools.json.EpicTypeAdapter;
+import tools.json.TaskTypeAdapter;
 
 import java.io.*;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.Supplier;
 
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
     private final File file;
+    private final Gson gson;
 
     public FileBackedTaskManager(File file) {
-
         this.file = file;
+
+        gson = new GsonBuilder()
+                .registerTypeAdapter(Task.class, new TaskTypeAdapter())
+                .registerTypeAdapter(Epic.class, new EpicTypeAdapter())
+                .setPrettyPrinting()
+                .excludeFieldsWithoutExposeAnnotation()
+                .create();
     }
 
     @Override
@@ -60,169 +69,106 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    public void updateTask(Task task) {
-        super.updateTask(task);
+    public Optional<Exception> updateTask(Task task) {
+        var result = super.updateTask(task);
         save();
+
+        return result;
     }
 
     @Override
-    public void updateEpic(Epic epic) {
-        super.updateEpic(epic);
+    public Optional<Exception> updateEpic(Epic epic) {
+        var result = super.updateEpic(epic);
         save();
+
+        return result;
     }
 
     @Override
-    public void updateSubTask(SubTask subTask) {
-        super.updateSubTask(subTask);
+    public Optional<Exception> updateSubTask(SubTask subTask) {
+        var result = super.updateSubTask(subTask);
         save();
+
+        return result;
     }
 
     @Override
-    public Optional<Integer> createTask(Task task) {
+    public Optional<Exception> createTask(Task task) {
         var result = super.createTask(task);
         save();
         return result;
     }
 
     @Override
-    public Optional<Integer> createEpic(Epic epic) {
+    public Optional<Exception> createEpic(Epic epic) {
         var result = super.createEpic(epic);
         save();
         return result;
     }
 
     @Override
-    public Optional<Integer> createSubTask(SubTask subTask) {
+    public Optional<Exception> createSubTask(SubTask subTask) {
         var result = super.createSubTask(subTask);
         save();
         return result;
     }
-    void reload(){
+
+
+    public void reload() {
         tasks.clear();
         epics.clear();
         subTasks.clear();
 
         if (!file.exists())
             return;
+        if (file.length() == 0)
+            return;
 
-        Map<Integer, List<SubTask>> notAddedSubTasks = new HashMap<>();
+        try (FileReader fileReader = new FileReader(file)) {
+            var jsonReader = new JsonReader(fileReader);
 
-        try (FileReader fr = new FileReader(file);
-             BufferedReader buffer = new BufferedReader(fr)) {
+            var tasks = new ArrayList<Task>();
+            var epics = new ArrayList<Epic>();
 
-            buffer.readLine(); //пропуск строки с заголовками
-            while (buffer.ready()) {
-                String line = buffer.readLine();
+            jsonReader.beginObject();
 
-                String[] values = line.split(";");
-                //0 id;1 name;2 description;3 taskType;4 duration;5 startTime;6 taskStatus;7 epicId
-
-                int id = Integer.parseInt(values[0]);
-                String name = values[1];
-                String desc = values[2];
-                TaskType type = TaskType.valueOf(values[3]);
-
-                Duration duration = Duration.parse(values[4]);
-                Supplier<LocalDateTime> getStartTime = () -> {
-                    String value = values[5];
-                    if (value == null || value.equals("null"))
-                        return null;
-
-                    return LocalDateTime.parse(value);
-                };
-
-                Supplier<Task> getTask = () -> {
-                    TaskStatus status = TaskStatus.valueOf(values[6]);
-
-                    Task task = new Task(name, desc, status);
-
-                    task.setTaskId(id);
-                    task.setDuration(duration);
-                    task.setStartTime(getStartTime.get());
-
-                    return task;
-                };
-
-                Supplier<Epic> getEpic = () -> {
-                    Epic epic = new Epic(name, desc);
-
-                    epic.setTaskId(id);
-                    epic.setDuration(duration);
-                    epic.setStartTime(getStartTime.get());
-
-                    return epic;
-                };
-
-                Supplier<SubTask> getSubTask = () -> {
-                    TaskStatus status = TaskStatus.valueOf(values[6]);
-                    int epicId = Integer.parseInt(values[7]);
-
-                    SubTask subTask = new SubTask(name, desc, status, epicId);
-
-                    subTask.setTaskId(id);
-                    subTask.setDuration(duration);
-                    subTask.setStartTime(getStartTime.get());
-
-                    return subTask;
-                };
-
-                if (type == TaskType.TASK) {
-                    tasks.put(id, getTask.get());
-                } else if (type == TaskType.EPIC) {
-                    Epic epic = getEpic.get();
-
-                    if (notAddedSubTasks.containsKey(id)) {
-                        for (SubTask subTask : notAddedSubTasks.get(id)) {
-                            epic.putSubTask(subTask);
-                            subTasks.put(subTask.getTaskId(), subTask);
-                        }
-
-                        notAddedSubTasks.remove(id);
-                    }
-
-                    epics.put(id, epic);
-                } else if (type == TaskType.SUBTASK) {
-                    SubTask subTask = getSubTask.get();
-                    int epicId = subTask.getEpicId();
-
-                    if (epics.containsKey(epicId)) {
-                        epics.get(epicId).putSubTask(subTask);
-                        subTasks.put(id, subTask);
-                    } else if (notAddedSubTasks.containsKey(epicId)) {
-                        notAddedSubTasks.get(epicId).add(subTask);
-                    } else {
-                        notAddedSubTasks.put(epicId, List.of(subTask));
-                    }
-                } else {
-                    throw new Exception("Неизвестный тип задачи");
+            while (jsonReader.hasNext()) {
+                switch (jsonReader.nextName()) {
+                    case "tasks" -> tasks = gson.fromJson(jsonReader, new TypeToken<List<Task>>() {}.getType());
+                    case "epics" -> epics = gson.fromJson(jsonReader, new TypeToken<List<Epic>>() {}.getType());
                 }
             }
+
+            jsonReader.endObject();
+
+            //Todo здесь совершил ошибку, тем что history держу в отдельном объекте. Сейчас не критично, но нужно объединить taskManager и history в одном объекте и восстанавливать историю из файла
+            //var historyList = taskManager.getHistory();
+
+            for (var task : tasks)
+                this.tasks.put(task);
+            for (var epic : epics)
+                this.epics.put(epic);
         } catch (Exception ex) {
             throw new ManagerLoadException(ex.getMessage(), ex);
         }
     }
+
     public void save() {
         try (FileWriter writer = new FileWriter(file)) {
-            writer.write("id;name;description;taskType;duration;startTime;taskStatus;epicId\n"); //0 id;1 name;2 description;3 taskType;4 duration;5 startTime;6 taskStatus;7 epicId
-            //writer.flush();
+            var jsonWriter = new JsonWriter(writer);
 
-            for (Task task : getTasks()) {
-                String line = String.format("%d;%s;%s;%s;%s;%s;%s;\n", task.getTaskId(), task.getName(), task.getDescription(), task.getTaskType(), task.getDuration(), Objects.requireNonNullElse(task.getStartTime(), "null"), task.getTaskStatus());
-                writer.append(line);
-            }
+            jsonWriter.beginObject();
 
-            for (Epic epic : getEpics()) {
-                epic.calcTaskDuration();
+            if (!tasks.isEmpty())
+                jsonWriter.name("tasks").jsonValue(gson.toJson(tasks.values()));
 
-                String line = String.format("%d;%s;%s;%s;%s;%s;;\n", epic.getTaskId(), epic.getName(), epic.getDescription(), epic.getTaskType(), epic.getDuration(), Objects.requireNonNullElse(epic.getStartTime(), "null"));
-                writer.append(line);
-            }
+            if (!epics.isEmpty())
+                jsonWriter.name("epics").jsonValue(gson.toJson(epics.values()));
 
-            for (SubTask subTask : getSubTasks()) {
-                String line = String.format("%d;%s;%s;%s;%s;%s;%s;%d\n", subTask.getTaskId(), subTask.getName(), subTask.getDescription(), subTask.getTaskType(), subTask.getDuration(), Objects.requireNonNullElse(subTask.getStartTime(), "null"), subTask.getTaskStatus(), subTask.getEpicId());
-                writer.append(line);
-            }
-        } catch (IOException ex) {
+            jsonWriter.endObject();
+
+            writer.flush();
+        } catch (Exception ex) {
             throw new ManagerSaveException(ex.getMessage(), ex);
         }
     }

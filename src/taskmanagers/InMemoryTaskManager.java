@@ -1,9 +1,6 @@
 package taskmanagers;
 
-import tasks.Epic;
-import tasks.SortedTaskMap;
-import tasks.SubTask;
-import tasks.Task;
+import tasks.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -32,7 +29,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Optional<List<SubTask>> getSubTasks(int epicId){
+    public Optional<List<SubTask>> getSubTasks(int epicId) {
         if (epics.containsKey(epicId)) {
             return Optional.of(epics.get(epicId).getSubTasks());
         }
@@ -41,8 +38,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Optional<Task> getTask(int taskId){
-
+    public Optional<Task> getTask(int taskId) {
         return Optional.ofNullable(tasks.get(taskId));
     }
 
@@ -51,6 +47,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         return Optional.ofNullable(epics.get(epicId));
     }
+
     @Override
     public Optional<SubTask> getSubTask(int subTaskId) {
 
@@ -58,40 +55,45 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void clearAllTasks(){
+    public void clearAllTasks() {
         tasks.clear();
     }
+
     @Override
-    public void clearAllEpics(){
+    public void clearAllEpics() {
         epics.clear();
         subTasks.clear();
     }
+
     @Override
-    public void clearAllSubTasks(){
-        for(var epic : epics.values())
+    public void clearAllSubTasks() {
+        for (var epic : epics.values())
             epic.clearSubTasks();
 
         subTasks.clear();
     }
+
     @Override
-    public void removeTask(int taskId){
+    public void removeTask(int taskId) {
         tasks.remove(taskId);
     }
+
     @Override
-    public void removeEpic(int epicId){
-        if(!epics.containsKey(epicId)) return;
+    public void removeEpic(int epicId) {
+        if (!epics.containsKey(epicId)) return;
 
         Epic epic = epics.get(epicId);
 
-        for(SubTask i : epic.getSubTasks()) {
+        for (SubTask i : epic.getSubTasks()) {
             subTasks.remove(i.getTaskId());
         }
 
         epics.remove(epicId);
     }
+
     @Override
-    public void removeSubTask(int subTaskId){
-        if(!subTasks.containsKey(subTaskId)) return;
+    public void removeSubTask(int subTaskId) {
+        if (!subTasks.containsKey(subTaskId)) return;
 
         SubTask subTask = subTasks.get(subTaskId);
 
@@ -104,136 +106,203 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateTask(Task task){
+    public Optional<Exception> updateTask(Task task) {
         int taskId = task.getTaskId();
 
-        if (tasks.containsKey(taskId))
+        if (tasks.containsKey(taskId)) {
+            if (tasks.getHasCross(task))
+                return Optional.of(new Exception("Элемент пересекается с другими"));
+
             tasks.replace(taskId, task);
+            tasks.refreshSortedSets(task);
+
+            return Optional.empty();
+        } else
+            return Optional.of(new Exception("Индекс задачи не найден"));
     }
+
     @Override
-    public void updateEpic(Epic epic) {
+    public Optional<Exception> updateEpic(Epic epic) {
         int epicId = epic.getTaskId();
 
-        if (!epics.containsKey(epicId)) return;
+        if (!epics.containsKey(epicId))
+            return Optional.of(new Exception("Индекс задачи не найден"));
 
         Epic oldEpic = epics.get(epicId);
 
         oldEpic.setName(epic.getName());
         oldEpic.setDescription(epic.getDescription());
+
+        return Optional.empty();
     }
+
     @Override
-    public void updateSubTask(SubTask subTask){
+    public Optional<Exception> updateSubTask(SubTask subTask) {
         var subTaskId = subTask.getTaskId();
 
-        if (!subTasks.containsKey(subTaskId)) return;
+        if (!subTasks.containsKey(subTaskId))
+            return Optional.of(new Exception("Индекс задачи не найден"));
 
         var oldSubTask = subTasks.get(subTaskId);
 
         var oldEpicId = oldSubTask.getEpicId();
         var newEpicId = subTask.getEpicId();
 
-        if (oldEpicId != newEpicId && epics.containsKey(newEpicId))
-            epics.get(newEpicId).removeSubTask(subTaskId);
+        if (!epics.containsKey(newEpicId))
+            return Optional.of(new Exception("Новый эпик не доступен"));
 
-        subTasks.replace(subTaskId, subTask);
+        if (oldEpicId != newEpicId) {
+            var oldEpic = epics.get(oldEpicId);
+            oldEpic.removeSubTask(subTaskId);
+            epics.refreshSortedSets(oldEpic);
+
+            var newEpic = epics.get(newEpicId);
+            newEpic.putSubTask(subTask);
+            epics.refreshSortedSets(newEpic);
+        }
+
+        if (subTasks.getHasCross(subTask))
+            return Optional.of(new Exception("Элемент пересекается с другими"));
+
+        subTasks.remove(oldSubTask);
+        try {
+            subTasks.put(subTask);
+        } catch (Exception e) {
+            return Optional.of(e);
+        }
+
+        return Optional.empty();
     }
 
     @Override
-    public Optional<Integer> createTask(Task task){
+    public Optional<Exception> createTask(Task task) {
         var nextNumber = incrementNextNumber();
 
-        if (tasks.containsKey(nextNumber))
-            return Optional.empty();
+        if (containsIndex(nextNumber))
+            return Optional.of(new Exception("Индекс пересекается с другими задачами"));
 
         task.setTaskId(nextNumber);
 
-        tasks.put(nextNumber, task);
-
-        return Optional.of(nextNumber);
+        return tasks.put(task);
     }
+
     @Override
-    public Optional<Integer> createEpic(Epic epic){
+    public Optional<Exception> createEpic(Epic epic) {
         var nextNumber = incrementNextNumber();
 
-        if (epics.containsKey(nextNumber))
-            return Optional.empty();
+        if (containsIndex(nextNumber))
+            return Optional.of(new Exception("Индекс пересекается с другими задачами"));
 
         epic.setTaskId(nextNumber);
 
-        epics.put(nextNumber, epic);
+        var resOfPutting = epics.put(epic);
 
-        for(var subTask: epic.getSubTasks()){
+        if (resOfPutting.isPresent())
+            return resOfPutting;
+
+        for (var subTask: epic.getSubTasks()) {
             var subTaskId = incrementNextNumber();
             subTask.setTaskId(subTaskId);
             subTask.setEpicId(nextNumber);
 
-            subTasks.put(subTaskId, subTask);
+            resOfPutting = subTasks.put(subTask);
+
+            if (resOfPutting.isPresent())
+                return resOfPutting;
         }
 
-        return Optional.of(nextNumber);
+        return Optional.empty();
     }
+
     @Override
-    public Optional<Integer> createSubTask(SubTask subTask) {
+    public Optional<Exception> createSubTask(SubTask subTask) {
         int epicId = subTask.getEpicId();
+
         if (!epics.containsKey(epicId))
-            return Optional.empty();
+            return Optional.of(new Exception("epicId не найден"));
 
         var nextNumber = incrementNextNumber();
 
+        if (containsIndex(nextNumber))
+            return Optional.of(new Exception("Индекс пересекается с другими задачами"));
+
         subTask.setTaskId(nextNumber);
 
-        subTasks.put(nextNumber, subTask);
+        var resOfPutting = subTasks.put(subTask);
+
+        if (resOfPutting.isPresent())
+            return resOfPutting;
 
         epics.get(epicId).putSubTask(subTask);
 
-        return Optional.of(nextNumber);
+        return Optional.empty();
     }
 
     @Override
-    public List<Task> getHistory(){
+    public List<Task> getHistory() {
         return List.of();
     }
 
 
     @Override
-    public void setTaskDuration(int taskId, Duration duration){
+    public void setTaskDuration(int taskId, Duration duration) {
         Task task = tasks.get(taskId);
         if (task != null)
             task.setDuration(duration);
     }
+
     @Override
-    public void setEpicDuration(int epicId, Duration duration){
+    public void setEpicDuration(int epicId, Duration duration) {
         Epic epic = epics.get(epicId);
         if (epic != null)
             epic.setDuration(duration);
     }
+
     @Override
-    public void setSubTaskDuration(int subTaskId, Duration duration){
+    public void setSubTaskDuration(int subTaskId, Duration duration) {
         SubTask subTask = subTasks.get(subTaskId);
         if (subTask != null) {
             subTask.setDuration(duration);
             epics.get(subTask.getEpicId()).calcTaskDuration();
         }
     }
+
     @Override
-    public void setTaskStartTime(int taskId, LocalDateTime startTime){
+    public void setTaskStartTime(int taskId, LocalDateTime startTime) {
         Task task = tasks.get(taskId);
         if (task != null)
-            task.setStartTime(startTime);
+            task.setStartTime(Optional.of(startTime));
     }
+
     @Override
-    public void setEpicStartTime(int epicId, LocalDateTime startTime){
+    public void setEpicStartTime(int epicId, LocalDateTime startTime) {
         Epic epic = epics.get(epicId);
         if (epic != null)
-            epic.setStartTime(startTime);
+            epic.setStartTime(Optional.of(startTime));
     }
+
     @Override
-    public void setSubTaskStartTime(int subTaskId, LocalDateTime startTime){
+    public void setSubTaskStartTime(int subTaskId, LocalDateTime startTime) {
         SubTask subTask = subTasks.get(subTaskId);
         if (subTask != null) {
-            subTask.setStartTime(startTime);
+            subTask.setStartTime(Optional.of(startTime));
             epics.get(subTask.getEpicId()).calcTaskDuration();
         }
+    }
+
+    @Override
+    public List<Task> getPrioritizedAll(int route) {
+        List<Task> list = tasks.getSortedStartTimeSet(route);
+        //list.addAll(epics.getSortedStartTimeSet(route)); Епики пропустим, т.к. вся работа на подхадачах
+        list.addAll(subTasks.getSortedStartTimeSet(route));
+
+        return list;
+    }
+
+
+    @Override
+    public List<Task> getPrioritizedTasks(int route) {
+        return tasks.getSortedStartTimeSet(route);
     }
 
     @Override
@@ -247,8 +316,18 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<Task> getPrioritizedTasks(int route) {
-        return tasks.getSortedStartTimeSet(route);
+    public boolean getHasCrossAll(Task task) {
+        return tasks.getHasCross(task) || subTasks.getHasCross(task);
+    }
+
+    @Override
+    public boolean containsIndex(int id) {
+        return tasks.containsKey(id) || epics.containsKey(id) || subTasks.containsKey(id);
+    }
+
+    @Override
+    public void refreshSortedMap() {
+        tasks.refreshSortedSets();
     }
 
     private int incrementNextNumber() {

@@ -1,4 +1,4 @@
-package historyManagers;
+package historymanagers;
 
 public class HistoryManagerFactory {
 

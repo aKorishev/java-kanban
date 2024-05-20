@@ -1,4 +1,4 @@
-package tests.tasks;
+package tasks;
 
 import enums.TaskStatus;
 import enums.TaskType;
@@ -24,6 +24,7 @@ class EpicTest {
 
         Assertions.assertEquals(2, epic.getSubTasks().size());
     }
+
     @Test
     void getSubTasksWithoutSubTaskId() {
         Epic epic = new Epic("name", "description");
@@ -83,6 +84,7 @@ class EpicTest {
 
         Assertions.assertEquals(0, epic.getSubTasks().size());
     }
+
     @Test
     void containsSubTaskId() {
         Epic epic = new Epic("name", "description");
@@ -94,21 +96,24 @@ class EpicTest {
 
         Assertions.assertTrue(epic.containsSubTaskId(10));
     }
+
     @Test
     void getTaskType() {
         Epic epic = new Epic("name", "description");
 
         Assertions.assertEquals(TaskType.EPIC, epic.getTaskType());
     }
+
     @Test
-    void getDurationWithOutSubtasks(){
+    void getDurationWithOutSubtasks() {
         Epic epic = new Epic("name", "description");
 
         epic.calcTaskDuration();
         Assertions.assertEquals(Duration.ZERO, epic.getDuration());
     }
+
     @Test
-    void getDurationSubtasks(){
+    void getDurationSubtasks() {
         Epic epic = new Epic("name", "description");
         epic.setTaskId(1);
 
@@ -124,6 +129,7 @@ class EpicTest {
         epic.calcTaskDuration();
         Assertions.assertEquals(Duration.ofMinutes(70), epic.getDuration());
     }
+
     @Test
     void getDurationSubTaskWhileOneSubTaskWithoutDuration() {
         Epic epic = new Epic("name", "description");
@@ -140,15 +146,17 @@ class EpicTest {
         epic.calcTaskDuration();
         Assertions.assertEquals(Duration.ofMinutes(25), epic.getDuration());
     }
+
     @Test
-    void getStartTimeWithOutSubtasks(){
+    void getStartTimeWithOutSubtasks() {
         Epic epic = new Epic("name", "description");
 
         epic.calcTaskDuration();
-        Assertions.assertNull(epic.getStartTime());
+        Assertions.assertTrue(epic.getStartTime().isEmpty());
     }
+
     @Test
-    void getMinimumStartTimeSubtasks(){
+    void getMinimumStartTimeSubtasks() {
         Epic epic = new Epic("name", "description");
         epic.setTaskId(1);
 
@@ -162,10 +170,11 @@ class EpicTest {
         epic.putSubTask(subTask);
 
         epic.calcTaskDuration();
-        Assertions.assertEquals(2, epic.getStartTime().getMinute());
+        Assertions.assertEquals(2, epic.getStartTime().get().getMinute());
     }
+
     @Test
-    void getMinimumStartTimeSubtasksWhileOneSubTaskWithoutStartTime(){
+    void getMinimumStartTimeSubtasksWhileOneSubTaskWithoutStartTime() {
         Epic epic = new Epic("name", "description");
         epic.setTaskId(1);
 
@@ -178,10 +187,11 @@ class EpicTest {
         epic.putSubTask(subTask);
 
         epic.calcTaskDuration();
-        Assertions.assertEquals(3, epic.getStartTime().getMinute());
+        Assertions.assertEquals(3, epic.getStartTime().get().getMinute());
     }
+
     @Test
-    void getMinimumStartTimeSubtasksWhileAllSubTaskWithoutStartTime(){
+    void getMinimumStartTimeSubtasksWhileAllSubTaskWithoutStartTime() {
         Epic epic = new Epic("name", "description");
         epic.setTaskId(1);
 
@@ -193,17 +203,19 @@ class EpicTest {
         epic.putSubTask(subTask);
 
         epic.calcTaskDuration();
-        Assertions.assertNull(epic.getStartTime());
+        Assertions.assertTrue(epic.getStartTime().isEmpty());
     }
+
     @Test
-    void getEndTimeWithOutSubtasks(){
+    void getEndTimeWithOutSubtasks() {
         Epic epic = new Epic("name", "description");
 
         epic.calcTaskDuration();
-        Assertions.assertNull(epic.getEndTime());
+        Assertions.assertTrue(epic.getEndTime().isEmpty());
     }
+
     @Test
-    void getEndTime(){
+    void getEndTime() {
         Epic epic = new Epic("name", "description");
         epic.setTaskId(1);
 
@@ -219,10 +231,11 @@ class EpicTest {
         epic.putSubTask(subTask);
 
         epic.calcTaskDuration();
-        Assertions.assertEquals(LocalDateTime.of(2024,5, 1, 4, 12), epic.getEndTime());
+        Assertions.assertTrue(epic.getEndTime().filter(LocalDateTime.of(2024,5, 1, 4, 12)::equals).isPresent());
     }
+
     @Test
-    void getEndTimeWhileOneSubTaskWithoutStartTime(){
+    void getEndTimeWhileOneSubTaskWithoutStartTime() {
         Epic epic = new Epic("name", "description");
         epic.setTaskId(1);
 
@@ -237,10 +250,11 @@ class EpicTest {
         epic.putSubTask(subTask);
 
         epic.calcTaskDuration();
-        Assertions.assertEquals(LocalDateTime.of(2024,5, 1, 4, 13), epic.getEndTime());
+        Assertions.assertTrue(epic.getEndTime().filter(LocalDateTime.of(2024,5, 1, 4, 13)::equals).isPresent());
     }
+
     @Test
-    void getEndTimeWhileOneSubTaskWithoutDuration(){
+    void getEndTimeWhileOneSubTaskWithoutDuration() {
         Epic epic = new Epic("name", "description");
         epic.setTaskId(1);
 
@@ -254,10 +268,11 @@ class EpicTest {
         epic.putSubTask(subTask);
 
         epic.calcTaskDuration();
-        Assertions.assertEquals(LocalDateTime.of(2024,5, 1, 2, 13), epic.getEndTime());
+        Assertions.assertTrue(epic.getEndTime().filter(LocalDateTime.of(2024,5, 1, 2, 13)::equals).isPresent());
     }
+
     @Test
-    void getEndTimeWhileAllSubTaskWithoutStartTime(){
+    void getEndTimeWhileAllSubTaskWithoutStartTime() {
         Epic epic = new Epic("name", "description");
         epic.setTaskId(1);
 
@@ -271,10 +286,11 @@ class EpicTest {
         epic.putSubTask(subTask);
 
         epic.calcTaskDuration();
-        Assertions.assertNull(epic.getEndTime());
+        Assertions.assertTrue(epic.getEndTime().isEmpty());
     }
+
     @Test
-    void allSubTaskNew(){
+    void allSubTaskNew() {
         Epic epic = new Epic("name", "description");
         epic.setTaskId(1);
 
@@ -296,8 +312,9 @@ class EpicTest {
 
         Assertions.assertEquals(TaskStatus.NEW, epic.getTaskStatus());
     }
+
     @Test
-    void otherStatuses(){
+    void otherStatuses() {
         Epic epic = new Epic("name", "description");
         epic.setTaskId(1);
 
@@ -321,8 +338,9 @@ class EpicTest {
 
         Assertions.assertEquals(TaskStatus.IN_PROGRESS, epic.getTaskStatus());
     }
+
     @Test
-    void OneInProgressOtherNew(){
+    void oneInProgressOtherNew() {
         Epic epic = new Epic("name", "description");
         epic.setTaskId(1);
 
@@ -345,8 +363,9 @@ class EpicTest {
 
         Assertions.assertEquals(TaskStatus.IN_PROGRESS, epic.getTaskStatus());
     }
+
     @Test
-    void OneDoneOtherNew(){
+    void oneDoneOtherNew() {
         Epic epic = new Epic("name", "description");
         epic.setTaskId(1);
 
@@ -369,8 +388,9 @@ class EpicTest {
 
         Assertions.assertEquals(TaskStatus.IN_PROGRESS, epic.getTaskStatus());
     }
+
     @Test
-    void AllDone(){
+    void allDone() {
         Epic epic = new Epic("name", "description");
         epic.setTaskId(1);
 
@@ -396,8 +416,9 @@ class EpicTest {
 
         Assertions.assertEquals(TaskStatus.DONE, epic.getTaskStatus());
     }
+
     @Test
-    void OneNewOtherDone(){
+    void oneNewOtherDone() {
         Epic epic = new Epic("name", "description");
         epic.setTaskId(1);
 
@@ -422,8 +443,9 @@ class EpicTest {
 
         Assertions.assertEquals(TaskStatus.IN_PROGRESS, epic.getTaskStatus());
     }
+
     @Test
-    void OneInProgressOtherDone(){
+    void oneInProgressOtherDone() {
         Epic epic = new Epic("name", "description");
         epic.setTaskId(1);
 

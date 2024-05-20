@@ -1,4 +1,4 @@
-package tests.taskManagers;
+package taskManagers;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -8,7 +8,6 @@ import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
 
-import java.util.ArrayList;
 import java.util.List;
 
 class InMemoryTaskManagerTest {
@@ -36,7 +35,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void getSubTasksOneEpic() throws Exception {
+    void getSubTasksOneEpic() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -57,7 +56,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void testGetSubTasksForSomeEpic() throws Exception {
+    void testGetSubTasksForSomeEpic()  {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -123,7 +122,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void getSubTask() throws Exception {
+    void getSubTask()  {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -168,7 +167,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void clearAllSubTasks() throws Exception {
+    void clearAllSubTasks() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -223,8 +222,9 @@ class InMemoryTaskManagerTest {
 
         Assertions.assertEquals(1, taskManager.getEpics().size());
     }
+
     @Test
-    void removeEpicWithSubTasks() throws Exception {
+    void removeEpicWithSubTasks() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -249,7 +249,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void removeSubTask() throws Exception {
+    void removeSubTask()  {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -308,7 +308,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void updateSubTask() throws Exception {
+    void updateSubTask() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -330,7 +330,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void getHistory() throws Exception {
+    void getHistory()  {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -346,17 +346,18 @@ class InMemoryTaskManagerTest {
         taskManager.createSubTask(new SubTask("","", epic2.getTaskId()));
         taskManager.createSubTask(new SubTask("","", epic2.getTaskId()));
 
-        for(Task task : taskManager.getTasks())
+        for (Task task : taskManager.getTasks())
             taskManager.getTask(task.getTaskId());
-        for(Epic epic : taskManager.getEpics())
+        for (Epic epic : taskManager.getEpics())
             taskManager.getEpic(epic.getTaskId());
-        for(SubTask subTask : taskManager.getSubTasks())
+        for (SubTask subTask : taskManager.getSubTasks())
             taskManager.getSubTask(subTask.getTaskId());
 
         Assertions.assertEquals(8, taskManager.getHistory().size());
     }
+
     @Test
-    void getHistoryAfterGetEmptyTask() throws Exception {
+    void getHistoryAfterGetEmptyTask() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -376,30 +377,33 @@ class InMemoryTaskManagerTest {
 
         Assertions.assertEquals(0, taskManager.getHistory().size());
     }
+
     @Test
     void getHistoryWithoutGetAnyTasks() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
-        for(int i = 0; i < 15; i++)
+        for (int i = 0; i < 15; i++)
             taskManager.createTask(new Task("",""));
 
         Assertions.assertEquals(0, taskManager.getHistory().size());
     }
+
     @Test
     void getHistoryAfterGetAllTasks() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
-        for(int i = 0; i < 5; i++)
+        for (int i = 0; i < 5; i++)
             taskManager.createTask(new Task("",""));
 
         taskManager.getTasks();
 
         Assertions.assertEquals(5, taskManager.getHistory().size());
     }
+
     @Test
-    void getHistoryAfterGetAllEpics() throws Exception {
+    void getHistoryAfterGetAllEpics() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -426,8 +430,9 @@ class InMemoryTaskManagerTest {
 
         Assertions.assertEquals(4, taskManager.getHistory().size());
     }
+
     @Test
-    void getHistoryAfterGetAllSubTasks() throws Exception {
+    void getHistoryAfterGetAllSubTasks() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -457,7 +462,7 @@ class InMemoryTaskManagerTest {
 
 
     @Test
-    void getHistoryAfterGetSubTasksOfOneEpic() throws Exception {
+    void getHistoryAfterGetSubTasksOfOneEpic() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -486,7 +491,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void getHistoryAfterRemoveEpic() throws Exception {
+    void getHistoryAfterRemoveEpic() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -502,19 +507,20 @@ class InMemoryTaskManagerTest {
         taskManager.createSubTask(new SubTask("","", epic2.getTaskId()));
         taskManager.createSubTask(new SubTask("","", epic2.getTaskId()));
 
-        for(Task task : taskManager.getTasks())
+        for (Task task : taskManager.getTasks())
             taskManager.getTask(task.getTaskId());
-        for(Epic epic : taskManager.getEpics())
+        for (Epic epic : taskManager.getEpics())
             taskManager.getEpic(epic.getTaskId());
-        for(SubTask subTask : taskManager.getSubTasks())
+        for (SubTask subTask : taskManager.getSubTasks())
             taskManager.getSubTask(subTask.getTaskId());
 
         taskManager.removeEpic(epic1.getTaskId());
 
         Assertions.assertEquals(5, taskManager.getHistory().size());
     }
+
     @Test
-    void getHistoryAfterRemoveTask() throws Exception {
+    void getHistoryAfterRemoveTask() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -532,11 +538,11 @@ class InMemoryTaskManagerTest {
         taskManager.createSubTask(new SubTask("","", epic2.getTaskId()));
         taskManager.createSubTask(new SubTask("","", epic2.getTaskId()));
 
-        for(Task task : taskManager.getTasks())
+        for (Task task : taskManager.getTasks())
             taskManager.getTask(task.getTaskId());
-        for(Epic epic : taskManager.getEpics())
+        for (Epic epic : taskManager.getEpics())
             taskManager.getEpic(epic.getTaskId());
-        for(SubTask subTask : taskManager.getSubTasks())
+        for (SubTask subTask : taskManager.getSubTasks())
             taskManager.getSubTask(subTask.getTaskId());
 
         taskManager.removeTask(controlTask.getTaskId());
@@ -545,7 +551,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void getHistoryAfterRemoveSubTask() throws Exception {
+    void getHistoryAfterRemoveSubTask() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -564,11 +570,11 @@ class InMemoryTaskManagerTest {
         taskManager.createSubTask(new SubTask("","", epic2.getTaskId()));
         taskManager.createSubTask(new SubTask("","", epic2.getTaskId()));
 
-        for(Task task : taskManager.getTasks())
+        for (Task task : taskManager.getTasks())
             taskManager.getTask(task.getTaskId());
-        for(Epic epic : taskManager.getEpics())
+        for (Epic epic : taskManager.getEpics())
             taskManager.getEpic(epic.getTaskId());
-        for(SubTask subTask : taskManager.getSubTasks())
+        for (SubTask subTask : taskManager.getSubTasks())
             taskManager.getSubTask(subTask.getTaskId());
 
         taskManager.removeSubTask(controlSubTask.getTaskId());
@@ -577,7 +583,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void getHistoryAfterRemoveAllTasks() throws Exception {
+    void getHistoryAfterRemoveAllTasks() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -607,7 +613,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void getHistoryAfterRemoveAllEpics() throws Exception {
+    void getHistoryAfterRemoveAllEpics() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -637,7 +643,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void getHistoryAfterRemoveAllSubTasks() throws Exception {
+    void getHistoryAfterRemoveAllSubTasks() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 
@@ -667,7 +673,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void getHistoryAfterRemoveSubTasksOfOneEpic() throws Exception {
+    void getHistoryAfterRemoveSubTasksOfOneEpic() {
         TaskManager taskManager =
                 TaskManagerFactory.initInMemoryTaskManager();
 

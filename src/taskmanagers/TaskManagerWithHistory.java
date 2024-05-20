@@ -1,6 +1,6 @@
 package taskmanagers;
 
-import historyManagers.HistoryManager;
+import historymanagers.HistoryManager;
 import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
@@ -14,10 +14,11 @@ public class TaskManagerWithHistory implements TaskManager {
     private final HistoryManager historyManager;
     private final TaskManager taskManagerBase;
 
-    public TaskManagerWithHistory(TaskManager taskManagerBase, HistoryManager historyManager){
+    public TaskManagerWithHistory(TaskManager taskManagerBase, HistoryManager historyManager) {
         this.taskManagerBase = taskManagerBase;
         this.historyManager = historyManager;
     }
+
     @Override
     public List<Epic> getEpics() {
         List<Epic> epics = taskManagerBase.getEpics();
@@ -40,14 +41,14 @@ public class TaskManagerWithHistory implements TaskManager {
     }
 
     @Override
-    public Optional<List<SubTask>> getSubTasks(int epicId){
+    public Optional<List<SubTask>> getSubTasks(int epicId) {
         var subTasks = taskManagerBase.getSubTasks(epicId);
         subTasks.ifPresent(this::addInHistory);
         return subTasks;
     }
 
     @Override
-    public Optional<Task> getTask(int taskId){
+    public Optional<Task> getTask(int taskId) {
         var task = taskManagerBase.getTask(taskId);
 
         task.ifPresent(this::addInHistory);
@@ -63,6 +64,7 @@ public class TaskManagerWithHistory implements TaskManager {
 
         return epic;
     }
+
     @Override
     public Optional<SubTask> getSubTask(int subTaskId) {
         var subTask = taskManagerBase.getSubTask(subTaskId);
@@ -73,51 +75,66 @@ public class TaskManagerWithHistory implements TaskManager {
     }
 
     @Override
-    public void clearAllTasks(){
-        for(Task task : taskManagerBase.getTasks()) {
+    public void clearAllTasks() {
+        for (Task task : taskManagerBase.getTasks()) {
             removeFromHistory(task);
         }
 
         taskManagerBase.clearAllTasks();
     }
+
     @Override
-    public void clearAllEpics(){
-        for(Epic epic : taskManagerBase.getEpics()) {
+    public void clearAllEpics() {
+        for (Epic epic : taskManagerBase.getEpics()) {
             removeFromHistory(epic);
         }
 
         taskManagerBase.clearAllEpics();
     }
+
     @Override
-    public void clearAllSubTasks(){
-        for(SubTask subTask : taskManagerBase.getSubTasks()) {
+    public void clearAllSubTasks() {
+        for (SubTask subTask : taskManagerBase.getSubTasks()) {
             removeFromHistory(subTask);
         }
 
         taskManagerBase.clearAllSubTasks();
     }
+
     @Override
-    public void removeTask(int taskId){
+    public void removeTask(int taskId) {
         var task = taskManagerBase.getTask(taskId);
         task.ifPresent(this::removeFromHistory);
         taskManagerBase.removeTask(taskId);
     }
+
     @Override
-    public void removeEpic(int epicId){
+    public void removeEpic(int epicId) {
         var epic = taskManagerBase.getEpic(epicId);
 
-        epic.ifPresent(i ->{
+        epic.ifPresent(i -> {
             i.getSubTasks().forEach(this::removeFromHistory);
             removeFromHistory(i);
         });
 
         taskManagerBase.removeEpic(epicId);
     }
+
     @Override
-    public void removeSubTask(int subTaskId){
+    public void removeSubTask(int subTaskId) {
         var subTask = taskManagerBase.getSubTask(subTaskId);
         subTask.ifPresent(this::removeFromHistory);
         taskManagerBase.removeSubTask(subTaskId);
+    }
+
+    @Override
+    public List<Task> getPrioritizedAll(int route) {
+        return taskManagerBase.getPrioritizedAll(route);
+    }
+
+    @Override
+    public List<Task> getPrioritizedTasks(int route) {
+        return taskManagerBase.getPrioritizedTasks(route);
     }
 
     @Override
@@ -131,33 +148,47 @@ public class TaskManagerWithHistory implements TaskManager {
     }
 
     @Override
-    public List<Task> getPrioritizedTasks(int route) {
-        return taskManagerBase.getPrioritizedTasks(route);
+    public boolean getHasCrossAll(Task task) {
+        return taskManagerBase.getHasCrossAll(task);
     }
 
     @Override
-    public void updateTask(Task task){
-        taskManagerBase.updateTask(task);
-    }
-    @Override
-    public void updateEpic(Epic epic) {
-        taskManagerBase.updateEpic(epic);
-    }
-    @Override
-    public void updateSubTask(SubTask subTask){
-        taskManagerBase.updateSubTask(subTask);
+    public boolean containsIndex(int id) {
+        return taskManagerBase.containsIndex(id);
     }
 
     @Override
-    public Optional<Integer> createTask(Task task){
+    public void refreshSortedMap() {
+        taskManagerBase.refreshSortedMap();
+    }
+
+    @Override
+    public Optional<Exception> updateTask(Task task) {
+        return taskManagerBase.updateTask(task);
+    }
+
+    @Override
+    public Optional<Exception> updateEpic(Epic epic) {
+        return taskManagerBase.updateEpic(epic);
+    }
+
+    @Override
+    public Optional<Exception> updateSubTask(SubTask subTask) {
+        return taskManagerBase.updateSubTask(subTask);
+    }
+
+    @Override
+    public Optional<Exception> createTask(Task task) {
         return taskManagerBase.createTask(task);
     }
+
     @Override
-    public Optional<Integer> createEpic(Epic epic){
+    public Optional<Exception> createEpic(Epic epic) {
         return taskManagerBase.createEpic(epic);
     }
+
     @Override
-    public Optional<Integer> createSubTask(SubTask subTask) throws Exception {
+    public Optional<Exception> createSubTask(SubTask subTask) {
         return taskManagerBase.createSubTask(subTask);
     }
 
@@ -192,17 +223,21 @@ public class TaskManagerWithHistory implements TaskManager {
     }
 
     @Override
-    public List<Task> getHistory(){
-
+    public List<Task> getHistory() {
         return historyManager.getHistory();
     }
 
     private <T extends Task> void addInHistory(List<T> tasks) {
-        for(Task task : tasks) {
+        for (Task task : tasks) {
             historyManager.add(task);
         }
     }
-    private <T extends Task> void addInHistory(T task) { historyManager.add(task);}
 
-    private <T extends Task>  void removeFromHistory(T task) { historyManager.remove(task.getTaskId()); }
+    private <T extends Task> void addInHistory(T task) {
+        historyManager.add(task);
+    }
+
+    private <T extends Task>  void removeFromHistory(T task) {
+        historyManager.remove(task.getTaskId());
+    }
 }

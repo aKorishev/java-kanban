@@ -1,19 +1,19 @@
-package historyManagers;
+package historymanagers;
 
 import tasks.Task;
 
 public class InMemoryHistoryNode {
     private final Task task;
-    private InMemoryHistoryNode prevNode = null;
-    private InMemoryHistoryNode nextNode = null;
+    private InMemoryHistoryNode prevNode;
+    private InMemoryHistoryNode nextNode;
 
-    public InMemoryHistoryNode(Task task, InMemoryHistoryNode prevNode, InMemoryHistoryNode nextNode){
+    public InMemoryHistoryNode(Task task, InMemoryHistoryNode prevNode, InMemoryHistoryNode nextNode) {
         this.task = task;
         this.prevNode = prevNode;
         this.nextNode = nextNode;
     }
 
-    public InMemoryHistoryNode(Task task){
+    public InMemoryHistoryNode(Task task) {
         this(task, null, null);
     }
 
@@ -37,7 +37,7 @@ public class InMemoryHistoryNode {
         return task;
     }
 
-    public boolean equalTasks(InMemoryHistoryNode otherNode){
+    public boolean equalTasks(InMemoryHistoryNode otherNode) {
         if (task == null || otherNode == null || otherNode.task == null)
             return false;
 
